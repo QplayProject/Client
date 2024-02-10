@@ -3,27 +3,47 @@ using System.Collections;
 using UnityEngine.UI;
 using Util;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using static UnityEngine.UIElements.UxmlAttributeDescription;
 
 public class Lobby : MonoBehaviour
 {
-	public Image Background;
+	public GameObject RoomPrefab;
+	public Transform RoomsContent;
+	public GameObject CreateRoomPanel;
+
+	public GameObject LobbyUserPrefab;
+	public Transform LobbyUsersContent;
+
+	public Image[] ItemImages;
 	public Image Model;
-	public Image Cloth;
-	public Image Hair;
-	public Image Ears;
 	public Text Name;
 	public Text Money;
+
+	private Dictionary<string, GameObject> LobbyUsers = new Dictionary<string, GameObject>();
+	private Dictionary<int, GameObject> Rooms = new Dictionary<int, GameObject>();
     // Use this for initialization
-    void Start()
+    private void Start()
     {
-		LoadUserInfo();
+        GameManager.Instance.AddUserLobbyMember = AddUserLobbyMember;
+        GameManager.Instance.AddChatRoomLobbyMember = AddChatRoomLobbyMember;
+        GameManager.Instance.RoomLobbyMember = RoomLobbyMember;
+        GameManager.Instance.LobbyMember = LobbyMember;
+
+		InitUserInfo();
+		InitLobbyUsers();
+		InitCreatedRooms();
     }
-    void LoadUserInfo()
+
+    private void InitUserInfo()
 	{
-		var gameManager = GameManager.Instance;
-		var serverManager = ServerManager.Instance;
+        for (int i = 0; i < ItemImages.Length; i++)
+        {
+			if (ItemImages[i] == null) continue;
+            ItemImages[i].gameObject.SetActive(false);
+        }
 
-
+        var gameManager = GameManager.Instance;
 
 		var user = gameManager.User;
 		var items = user.Items;
@@ -32,59 +52,113 @@ public class Lobby : MonoBehaviour
 		string modelPath = gameManager.GetModelImagePath(user.Gender, user.Model);
 		Model.sprite = Resources.Load<Sprite>(modelPath);
 
-		Cloth.gameObject.SetActive(false);
-        Hair.gameObject.SetActive(false);
-        Ears.gameObject.SetActive(false);
-        Background.gameObject.SetActive(false);
-
-		if (items == null)
-		{
-			Debug.Log("Items Null");
-			//return;
-		}
         foreach (var itemData in items)
 		{
-			if (!itemData.Value) continue;
+			bool isEquip = itemData.Value;
+			if (!isEquip) continue;
+			var item = itemTable[itemData.Key];
 
-			var path = "";
-
-			int category = itemTable[itemData.Key].Category;
-			string imageId = itemTable[itemData.Key].ImgId;
-
-			switch(category)
-			{
-				case (int)Category.Hair:
-					path = GameManager.Instance.GetItemImagePath((int)Category.Hair, imageId);
-					Hair.sprite = Resources.Load<Sprite>(path);
-                    Hair.gameObject.SetActive(true);
-                    break;
-				case (int)Category.Cloth:
-                    path = GameManager.Instance.GetItemImagePath((int)Category.Cloth, imageId);
-                    Cloth.sprite = Resources.Load<Sprite>(path);
-                    Cloth.gameObject.SetActive(true);
-                    break;
-				case (int)Category.Ears:
-                    path = GameManager.Instance.GetItemImagePath((int)Category.Ears, imageId);
-                    Ears.sprite = Resources.Load<Sprite>(path);
-					Ears.gameObject.SetActive(true);
-                    break;
-				case (int)Category.Background:
-                    path = GameManager.Instance.GetItemImagePath((int)Category.Background, imageId);
-                    Background.sprite = Resources.Load<Sprite>(path);
-                    Background.gameObject.SetActive(true);
-                    break;
-			}
-
+			var path = GameManager.Instance.GetItemImagePath(item.Category, item.ImgId);
+			ItemImages[item.Category].sprite = Resources.Load<Sprite>(path);
+			ItemImages[item.Category].gameObject.SetActive(true);
 		}
 
 		Name.text = gameManager.User.UserName;
 		Money.text = gameManager.User.Money.ToString();
     }
 
-	// Update is called once per frame
-	void Update()
+	private void InitLobbyUsers()
 	{
-			
+		var lobbyUsers = GameManager.Instance.LobbyUsersInfo;
+		foreach (var user in lobbyUsers)
+		{
+			GameObject LobbyUser = Instantiate(LobbyUserPrefab, LobbyUsersContent);
+			var lobbyUserInfo = LobbyUser.GetComponent<LobbyUser>();
+			lobbyUserInfo.SetLobbyUser(user.UserName, user.State, user.RoomNumber);
+
+			LobbyUsers[user.UserName] = LobbyUser;
+		}
 	}
+
+	private void InitCreatedRooms()
+	{
+		var gameManager = GameManager.Instance;
+		var roomsInfo = gameManager.CreatedRoomsInfo;
+		foreach (var t in gameManager.CreatedRoomsInfo)
+		{
+			if (t.Value.RoomName == null) continue;
+			Debug.Log($"{t.Value.RoomName} / COUNT: {roomsInfo.Count}");
+		}
+		
+		for (int i= 0; i< roomsInfo.Count; i++)
+		{
+            GameObject room = Instantiate(RoomPrefab, RoomsContent);
+
+            var createdRoom = room.GetComponent<CreatedRoom>();
+			string roomName;
+			if (roomsInfo[i].RoomName == null)
+			{
+				roomName = "";
+				createdRoom.SetCreatedRoom(roomsInfo[i].RoomNumber, roomsInfo[i].CurrentMember, roomName);
+                room.SetActive(false);
+            }
+			else
+			{
+				roomName = roomsInfo[i].RoomName;
+                createdRoom.SetCreatedRoom(roomsInfo[i].RoomNumber, roomsInfo[i].CurrentMember, roomName);
+	            room.SetActive(true);
+            }
+			Rooms[roomsInfo[i].RoomNumber] = room;
+
+        }
+        foreach (var roomInfo in roomsInfo)
+		{
+			
+			
+		}
+	}
+    public void OpenCreateRoomPanel()
+    {
+		CreateRoomPanel.SetActive(true);
+    }
+
+	private void AddUserLobbyMember(ChatBase.AddUserLobbyMember callback)
+	{
+        GameObject LobbyUser = Instantiate(LobbyUserPrefab, LobbyUsersContent);
+        var lobbyUserInfo = LobbyUser.GetComponent<LobbyUser>();
+        lobbyUserInfo.SetLobbyUser(callback.UserName, callback.State, callback.RoomNumber);
+
+        LobbyUsers[callback.UserName] = LobbyUser;
+    }
+
+    private void AddChatRoomLobbyMember(ChatBase.AddChatRoomLobbyMember callback)
+    {
+		var roomNumber = callback.RoomNumber;
+		var room = Rooms[roomNumber];
+        var createdRoom = room.GetComponent<CreatedRoom>();
+
+		createdRoom.SetCreatedRoom(roomNumber, callback.CurrentMember, callback.RoomName);
+		room.SetActive(true);
+    }
+
+	private void RoomLobbyMember(ChatBase.RoomLobbyMember callback)
+	{
+		var user = LobbyUsers[callback.UserName];
+		var lobbyUserInfo = user.GetComponent<LobbyUser>();
+		lobbyUserInfo.SetLobbyUser(callback.UserName, callback.State, callback.RoomNumber);
+
+
+		var roomNumber = callback.RoomNumber;
+		var room = Rooms[roomNumber];
+		var createdRoom = room.GetComponent<CreatedRoom>();
+		createdRoom.Member.text = $"{callback.CurrentMember}";
+    }
+
+    private void LobbyMember(ChatBase.LobbyMember callback)
+    {
+        var user = LobbyUsers[callback.UserName];
+        var lobbyUserInfo = user.GetComponent<LobbyUser>();
+        lobbyUserInfo.SetLobbyUser(callback.UserName, callback.State);
+    }
 }
 

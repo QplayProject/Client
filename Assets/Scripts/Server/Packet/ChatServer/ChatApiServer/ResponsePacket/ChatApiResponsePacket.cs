@@ -17,27 +17,27 @@ namespace ChatApiResponse
         public int Model { get; set; }
         public int Money { get; set; }
         public Dictionary<int, bool> Items { get; set; }
-        public List<CreatedRoomInfo> CreatedRoomsInfo { get; set; }
+        public Dictionary<int, CreatedRoomInfo> CreatedRoomsInfo { get; set; }
         public List<LobbyUserInfo> LobbyUsersInfo { get; set; }
     }
     public class Room : Packet
-    { 
+    {
         public int State { get; set; }
         public int RoomNumber { get; set; }
         public int CurrentMember { get; set; }
         public string RoomName { get; set; }
         public string OwnerName { get; set; }
-        public Dictionary<int, JoinRoomUserInfo> RoomUsersInfo { get; set; }
+        public Dictionary<int, JoinRoomUserInfo> JoinRoomUsersInfo { get; set; }
     }
 
-    public class Lobby : Packet
+    public class ExitRoom : Packet
     {
         public int State { get; set; }
-        public List<CreatedRoomInfo> CreatedRoomsInfo { get; set; }
+        public Dictionary<int, CreatedRoomInfo> CreatedRoomsInfo { get; set; }
         public List<LobbyUserInfo> LobbyUsersInfo { get; set; }
     }
 
-    public class ChangeState : Packet
+    public class SceneChange : Packet
     {
         public int State { get; set; }
     }

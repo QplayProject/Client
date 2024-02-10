@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
+using Util;
 
 public class ServerManager : MonoBehaviour
 {
@@ -17,14 +19,12 @@ public class ServerManager : MonoBehaviour
         }
     }
 
-    public GameObject MessageBox;
-
     public Dictionary<int, Table.ItemInfo> ItemTable = new Dictionary<int, Table.ItemInfo>();
     public Dictionary<int, Table.ShopItemInfo> ShopTable = new Dictionary<int, Table.ShopItemInfo>();
 
 
-    public TcpClient ChatTcpClient = new TcpClient();
-    public NetworkStream ChatNetworkStream;
+    public TcpClient ChatTcpClient { get; set; }
+    public NetworkStream ChatNetworkStream { get; set; }
     public string ChatServerIp = "127.0.0.1";
     public int ChatServerPort = 12345;
 
@@ -36,7 +36,7 @@ public class ServerManager : MonoBehaviour
             {
                 byte[] data = System.Text.Encoding.UTF8.GetBytes(message);
                 await ChatNetworkStream.WriteAsync(data, 0, data.Length);
-                Debug.Log($"Sent message: {message}");
+                //Debug.Log($"Sent message: {message}");
             }
             catch (Exception e)
             {
@@ -45,10 +45,26 @@ public class ServerManager : MonoBehaviour
         }
     }
 
+    public Action ChatServer;
+
+    public Action<string> MessageBox;
+
     public void OpenMessageBox(string message)
     {
-        MessageBox.SetActive(true);
-        var Message = MessageBox.transform.Find("Message").gameObject.GetComponent<Text>();
-        Message.text = message;
+        MessageBox?.Invoke(message);
     }
+
+
+    public async Task SendChatMessage(int opcode, object packet)
+    { 
+        var chatPacket = new ChatBase.Packet();
+        chatPacket.Opcode = opcode;
+        chatPacket.Message = JsonConvert.SerializeObject(packet);
+
+        var message = JsonConvert.SerializeObject(chatPacket);
+
+        //Debug.Log($"Test: {message}");
+        await SendMessageAsync(message);
+    }
+
 }

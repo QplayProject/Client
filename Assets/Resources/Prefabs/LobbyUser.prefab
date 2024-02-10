@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7912561373456362452}
   - component: {fileID: 7912561373456362453}
   m_Layer: 5
-  m_Name: RoomNumber
+  m_Name: State
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -247,6 +247,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7912561375336636704}
+  - component: {fileID: 7948137857043930874}
   - component: {fileID: 7912561375336636706}
   - component: {fileID: 7912561375336636707}
   m_Layer: 5
@@ -277,6 +278,20 @@ RectTransform:
   m_AnchoredPosition: {x: 2, y: -2}
   m_SizeDelta: {x: 278, y: 50}
   m_Pivot: {x: 0, y: 1}
+--- !u!114 &7948137857043930874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7912561375336636705}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c6d55dc151dd4d70b24e5c3707712f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  State: {fileID: 7912561373456362453}
+  UserName: {fileID: 7912561373530532712}
 --- !u!222 &7912561375336636706
 CanvasRenderer:
   m_ObjectHideFlags: 0

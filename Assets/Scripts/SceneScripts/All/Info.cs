@@ -92,26 +92,50 @@ public class Info : MonoBehaviour
                 Background.gameObject.SetActive(true);
                 break;
         }
+
+        var user = GameManager.Instance.User;
+        var items = user.Items;
+        items[itemId] = true;
     }
-    public void CharacterUnEquipItemFunc(int category)
+    public void CharacterUnEquipItemFunc(int itemId, int category)
     {
         Debug.Log($"CharacterUnEquipItemFunc:: Category : {category}");
-
         switch (category)
         {
             case (int)Category.Hair:
-                Hair.gameObject.SetActive(false);
+                {
+                    //var equipItem = Hair.GetComponent<EquipItem>();
+                    //itemId = equipItem.ItemId;
+                    Hair.gameObject.SetActive(false);
+                }
                 break;
             case (int)Category.Cloth:
-                Cloth.gameObject.SetActive(false);
+                {
+                    //var equipItem = Cloth.GetComponent<EquipItem>();
+                    Cloth.gameObject.SetActive(false);
+                }
                 break;
             case (int)Category.Ears:
-                Ears.gameObject.SetActive(false);
+                {
+                    //var equipItem = Ears.GetComponent<EquipItem>();
+                    //itemId = equipItem.ItemId;
+                    Ears.gameObject.SetActive(false);
+                }
                 break;
             case (int)Category.Background:
-                Background.gameObject.SetActive(false);
+                {
+                    //var equipItem = Background.GetComponent<EquipItem>();
+                    //itemId = equipItem.ItemId;
+                    Background.gameObject.SetActive(false);
+                }
                 break;
         }
+        
+
+        var user = GameManager.Instance.User;
+        var items = user.Items;
+        items[itemId] = false;
     }
+
 }
 

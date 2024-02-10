@@ -47,7 +47,7 @@ namespace GameInfo
         public int CurrentMember { get; set; }
         public string RoomName { get; set; }
         public string OwnerName { get; set; }
-        public List<string> RoomUsersInfo { get; set; }
+        //public List<string> RoomUsersInfo { get; set; }
     }
     #endregion
 
@@ -57,7 +57,7 @@ namespace GameInfo
         public int CurrentMember { get; set; }
         public string RoomName { get; set; }
         public string OwnerName { get; set; }
-        public Dictionary<int, JoinRoomUserInfo> RoomUsersInfo { get; set; }
+        public Dictionary<int, JoinRoomUserInfo> JoinRoomUsersInfo { get; set; }
     }
 
     public class JoinRoomUserInfo
@@ -84,12 +84,22 @@ namespace Util
         Message, //-- 기본 응답 (서버->클라이언트 Tcp메시지 호출 응답용)
         JoinGame, //-- 게임 접속 (서버<->클라이언트)
         Chat, //-- 채팅 (서버<->클라이언트)
-        AddUser,
-        AddChatRoom,
-        RefreshChatRoom,
+        AddUserLobbyMember,
+        AddChatRoomLobbyMember,
+        RoomLobbyMember,
+        LobbyMember,
         JoinRoomMember,
         ExitRoomMember,
-        ChangeUserState,
+    }
+    enum RequestHeader
+    {
+        JoinGame,
+        CreateRoom,
+        JoinRoom,
+        ExitRoom,
+        SceneChange,
+        BuyItem,
+        EquipItems
     }
     enum ChatType
     {
@@ -97,23 +107,14 @@ namespace Util
         All
     }
 
-    enum RequestHeader
-    {
-        JoinGame,
-        CreateRoom,
-        JoinRoom,
-        ExitRoom,
-        ChangeState,
-        BuyItem,
-        EquipItems
-    }
-
+   
     enum UserState
     {
         Lobby,
         Room,
         Shop,
-        BeautyRoom
+        BeautyRoom,
+        Logout,
     }
 
     enum DB

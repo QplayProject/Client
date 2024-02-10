@@ -4,21 +4,20 @@ namespace ChatApiRequest
 {
     public class Packet
     {
-        public string Name { get; set; }
+        public string UserName { get; set; }
     }
 
-    //-- Response -> ResponseRoom
     public class CreateRoom : Packet
     {
         public string RoomName { get; set; }
     }
 
-    public class Room : Packet
+    public class JoinRoom : Packet
     {
         public int RoomNumber { get; set; }
     }
 
-    public class ChangeState : Packet
+    public class SceneChange : Packet
     {
         public int State { get; set; }
     }
@@ -28,7 +27,7 @@ namespace ChatApiRequest
         public int ItemId { get; set; }
     }
 
-    public class ChangeCharacter : Packet
+    public class EquipItems : Packet
     {
         public Dictionary<int, bool> Items { get; set; }
     }

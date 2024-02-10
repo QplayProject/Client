@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using static UnityEditor.Progress;
 using Table;
+using Util;
 
 public class Shop: MonoBehaviour
 {
@@ -14,12 +15,15 @@ public class Shop: MonoBehaviour
     public GameObject InventoryItemPrefab;
     public Transform InventoryContent;
 
+    public Text Money;
+
     private Dictionary<int, GameObject> ShopItems = new Dictionary<int, GameObject>();
 
     void Start()
     {
         CreateShopItems();
         CreateInventoryItems();
+        GameManager.Instance.BuyItem = BuyItemFunc;
     }
 
     private void CreateShopItems()
@@ -68,20 +72,15 @@ public class Shop: MonoBehaviour
     //TODO: 서버에 구매 호출 추가해야함
     public void BuyItemFunc(int itemId)
     {
-        var itemTable = ServerManager.Instance.ItemTable;
+        var user = GameManager.Instance.User;
+        var webServer = new ChatApiServer();
+        var buyItem = new ChatApiRequest.BuyItem();
 
-        var item = itemTable[itemId];
-        GameObject itemObject = Instantiate(InventoryItemPrefab, InventoryContent);
+        buyItem.UserName = user.UserName;
+        buyItem.ItemId = itemId;
 
-        var image = itemObject.transform.Find("Info").Find("Image").GetComponent<Image>();
-        var path = GameManager.Instance.GetItemImagePath(item.Category, item.ImgId, true);
-        image.sprite = Resources.Load<Sprite>(path);
-
-        var name = itemObject.transform.Find("Name").GetComponent<Text>();
-        name.text = itemTable[itemId].Name;
-
-        var isEquip = itemObject.transform.Find("IsEquip").gameObject;
-        isEquip.SetActive(false);
+        StartCoroutine(webServer.ChatApiRequest((int)RequestHeader.BuyItem, buyItem));
+       
     }
 
     public void EquipItemFunc(string itemImageId, int category)
@@ -91,6 +90,34 @@ public class Shop: MonoBehaviour
         var path = GameManager.Instance.GetItemImagePath(category, itemImageId);
         image.sprite = Resources.Load<Sprite>(path);
         EquipItems[category].SetActive(true);
+    }
+
+    private void BuyItemFunc(ChatApiResponse.BuyItem response)
+    {
+        if (response.MessageCode == (int)MessageCode.Success)
+        {
+            Money.text = response.Money.ToString();
+
+            var itemId = response.ItemId;
+
+            var itemTable = ServerManager.Instance.ItemTable;
+
+            var item = itemTable[itemId];
+            GameObject itemObject = Instantiate(InventoryItemPrefab, InventoryContent);
+
+            var image = itemObject.transform.Find("Info").Find("Image").GetComponent<Image>();
+            var path = GameManager.Instance.GetItemImagePath(item.Category, item.ImgId, true);
+            image.sprite = Resources.Load<Sprite>(path);
+
+            var name = itemObject.transform.Find("Name").GetComponent<Text>();
+            name.text = itemTable[itemId].Name;
+
+            var isEquip = itemObject.transform.Find("IsEquip").gameObject;
+            isEquip.SetActive(false);
+
+            ServerManager.Instance.OpenMessageBox(response.Message);
+        }
+        
     }
 }
 

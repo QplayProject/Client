@@ -4,14 +4,26 @@ using UnityEngine;
 
 public class Test: MonoBehaviour
 {
+    public GameObject test;
+    private ChatBubble ttt;
     private void Start()
     {
-        var version = GameManager.Instance.VersionCheck;
-        Debug.Log($"{version}");
+        ttt = test.GetComponent<ChatBubble>();
     }
-    // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            if (test.activeSelf)
+            {
+                Debug.Log("강제 종료 시도!");
+
+                ttt.CloseChatBubble();
+            }
+
+            Debug.Log("실행시킴!");
+            test.SetActive(true);
+            ttt.OpenChatBubble();
+        }
     }
 }

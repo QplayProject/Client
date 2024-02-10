@@ -1,6 +1,6 @@
 ﻿namespace ChatRequest
 {
-    public class Packet
+    public class JoinGame
     {
         public string UserName;
     }

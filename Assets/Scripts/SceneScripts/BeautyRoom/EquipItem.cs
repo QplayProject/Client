@@ -15,13 +15,13 @@ public class EquipItem : MonoBehaviour
     public Image ItemImage;
     public Text ItemNameText;
     [SerializeField]
-    private int ItemId;
+    public int ItemId;
     private string ImageId;
     private string ItemName;
     private int Category;
 
     private Action<int> UnEquipItemFunc;
-    private Action<int> CharacterUnEquipItemFunc;
+    private Action<int, int> CharacterUnEquipItemFunc;
     private Action<int, int> CharacterEquipItemFunc;
 
     public void SetEquipItem(Action<int> callback, int category)
@@ -110,7 +110,7 @@ public class EquipItem : MonoBehaviour
 
         var itemTable = ServerManager.Instance.ItemTable;
         var category = itemTable[ItemId].Category;
-        CharacterUnEquipItemFunc?.Invoke(category);
+        CharacterUnEquipItemFunc?.Invoke(ItemId, category);
     }
 }
 

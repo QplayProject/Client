@@ -1,15 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class MessageBox : MonoBehaviour
 {
-    // Use this for initialization
     void Start()
     {
-        DontDestroyOnLoad(this.gameObject);
+        var serverManager = ServerManager.Instance;
+        serverManager.MessageBox = OpenMessageBox;
         gameObject.SetActive(false);
     }
+    public void OpenMessageBox(string message)
+    {
 
+        gameObject.SetActive(true);
+        var Message = gameObject.transform.Find("Message").gameObject.GetComponent<Text>();
+        Message.text = message;
+        
+    }
     public void OnClickMessageBoxButton()
     {
         var Button = gameObject;

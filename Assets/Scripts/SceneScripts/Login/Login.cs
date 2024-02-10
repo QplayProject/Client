@@ -34,9 +34,9 @@ public class Login : MonoBehaviour
             var gameManager = GameManager.Instance;
             var joinGame = new ChatApiRequest.Packet();
 
-            joinGame.Name = gameManager.User.UserName;
+            joinGame.UserName = gameManager.User.UserName;
             var webServer = new ChatApiServer();
-
+            Debug.Log("TEST: JOIN GAME!!");
             yield return StartCoroutine(webServer.ChatApiRequest((int)RequestHeader.JoinGame, joinGame));
         }
         else
