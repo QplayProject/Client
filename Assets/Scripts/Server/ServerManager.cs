@@ -25,8 +25,13 @@ public class ServerManager : MonoBehaviour
 
     public TcpClient ChatTcpClient { get; set; }
     public NetworkStream ChatNetworkStream { get; set; }
-    public string ChatServerIp = "13.125.254.231";//"127.0.0.1";
+    //    public string ChatServerIp = "13.125.254.231";//"127.0.0.1";
+    public string ChatServerIp = "localhost";
     public int ChatServerPort = 8080;
+    
+    public string ChatApiServerUrl = "http://loacalhost:81/api/";
+    //public string ChatApiServerUrl = "http://13.125.254.231:5001/api/";
+
 
     public async Task SendMessageAsync(string message)
     {

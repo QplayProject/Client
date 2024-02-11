@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 
 public class ChatApiServer
 {
-    public const string ChatServerURL = "http://13.125.254.231:5001/api/";
+    
 
 
     public IEnumerator ChatApiRequest(int requestHeader, object request)
@@ -42,7 +42,7 @@ public class ChatApiServer
         }
         Debug.Log($"ChatApiRequest:: Header:[{headerString}] Data::{json}");
 
-        using (UnityWebRequest server = UnityWebRequest.Post(ChatServerURL, json))
+        using (UnityWebRequest server = UnityWebRequest.Post(ServerManager.Instance.ChatApiServerUrl, json))
         {
             byte[] jsonToSend = new UTF8Encoding().GetBytes(json);
             server.uploadHandler.Dispose();
