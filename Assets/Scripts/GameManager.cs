@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    public int Width;
+    public int Height;
     void Awake()
     {
         if (Instance == null)
@@ -19,7 +21,6 @@ public class GameManager : MonoBehaviour
         }
     }
     private int count = 100;
-
     private void Start()
     {
         for (int i= 0; i < count; i++)
@@ -31,6 +32,7 @@ public class GameManager : MonoBehaviour
             //var lobbyUserInfo = new LobbyUserInfo();
             //LobbyUsersInfo.Add(lobbyUserInfo);
         }
+        Screen.SetResolution(Width, Height, false);
     }
     public UserInfo User = new UserInfo();
     public JoinRoomInfo JoinRoom = new JoinRoomInfo();

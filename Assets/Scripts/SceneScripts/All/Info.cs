@@ -2,7 +2,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Util;
-using static UnityEditor.Progress;
 
 public class Info : MonoBehaviour
 {

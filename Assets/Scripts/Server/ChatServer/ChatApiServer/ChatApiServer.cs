@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 
 public class ChatApiServer
 {
-    public const string ChatServerURL = "http://localhost:5001/api/";
+    public const string ChatServerURL = "http://13.125.254.231:5001/api/";
 
 
     public IEnumerator ChatApiRequest(int requestHeader, object request)

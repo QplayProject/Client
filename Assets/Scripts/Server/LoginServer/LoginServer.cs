@@ -11,7 +11,7 @@ using Util;
 
 public class LoginServer
 {
-    public const string LoginServerURL = "http://localhost:5000/api/";
+    public const string LoginServerURL = "http://13.125.254.231:5000/api/";
 
     public IEnumerator LoadTable(LoginRequest.LoadTable request)
     {
