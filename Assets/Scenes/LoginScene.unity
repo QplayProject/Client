@@ -402,6 +402,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ChatServerIp: 127.0.0.1
   ChatServerPort: 12345
+  LoginServerIp: 
+  LoginServerPort: 1234
 --- !u!4 &517633559
 Transform:
   m_ObjectHideFlags: 0
@@ -1070,7 +1072,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\uBC84\uC804 \uD655\uC778"
+  m_Text: "\uBC84\uC804 \uD655\uC778\uC911"
 --- !u!222 &1227227098
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1642,8 +1644,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: faed0623aaed94217a5131f62320841e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Width: 1600
-  Height: 900
   VersionCheck: 0
   SelectRoomNumber: -1
 --- !u!1001 &1742172370149816539
