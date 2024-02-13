@@ -31,7 +31,7 @@ public class Lobby : MonoBehaviour
         GameManager.Instance.LobbyMember = LobbyMember;
 
 		InitUserInfo();
-		InitLobbyUsers();
+		InitLoginUsers();
 		InitCreatedRooms();
     }
 
@@ -67,10 +67,10 @@ public class Lobby : MonoBehaviour
 		Money.text = gameManager.User.Money.ToString();
     }
 
-	private void InitLobbyUsers()
+	private void InitLoginUsers()
 	{
-		var lobbyUsers = GameManager.Instance.LobbyUsersInfo;
-		foreach (var user in lobbyUsers)
+		var loginUsers = GameManager.Instance.LoginUsers;
+		foreach (var user in loginUsers)
 		{
 			GameObject LobbyUser = Instantiate(LobbyUserPrefab, LobbyUsersContent);
 			var lobbyUserInfo = LobbyUser.GetComponent<LobbyUser>();
@@ -83,39 +83,30 @@ public class Lobby : MonoBehaviour
 	private void InitCreatedRooms()
 	{
 		var gameManager = GameManager.Instance;
-		var roomsInfo = gameManager.CreatedRoomsInfo;
-		foreach (var t in gameManager.CreatedRoomsInfo)
-		{
-			if (t.Value.RoomName == null) continue;
-			Debug.Log($"{t.Value.RoomName} / COUNT: {roomsInfo.Count}");
-		}
+		var rooms = gameManager.Rooms;
 		
-		for (int i= 0; i< roomsInfo.Count; i++)
+		
+		for (int i= 0; i< rooms.Count; i++)
 		{
             GameObject room = Instantiate(RoomPrefab, RoomsContent);
 
             var createdRoom = room.GetComponent<CreatedRoom>();
 			string roomName;
-			if (roomsInfo[i].RoomName == null)
+			if (rooms[i].CurrentMember <= 0)
 			{
 				roomName = "";
-				createdRoom.SetCreatedRoom(roomsInfo[i].RoomNumber, roomsInfo[i].CurrentMember, roomName);
+				createdRoom.SetCreatedRoom(rooms[i].RoomNumber, rooms[i].CurrentMember, roomName);
                 room.SetActive(false);
             }
 			else
 			{
-				roomName = roomsInfo[i].RoomName;
-                createdRoom.SetCreatedRoom(roomsInfo[i].RoomNumber, roomsInfo[i].CurrentMember, roomName);
+				roomName = rooms[i].RoomName;
+                createdRoom.SetCreatedRoom(rooms[i].RoomNumber, rooms[i].CurrentMember, roomName);
 	            room.SetActive(true);
             }
-			Rooms[roomsInfo[i].RoomNumber] = room;
+			Rooms[i] = room;
 
         }
-        foreach (var roomInfo in roomsInfo)
-		{
-			
-			
-		}
 	}
     public void OpenCreateRoomPanel()
     {
@@ -124,11 +115,25 @@ public class Lobby : MonoBehaviour
 
 	private void AddUserLobbyMember(ChatBase.AddUserLobbyMember callback)
 	{
-        GameObject LobbyUser = Instantiate(LobbyUserPrefab, LobbyUsersContent);
-        var lobbyUserInfo = LobbyUser.GetComponent<LobbyUser>();
-        lobbyUserInfo.SetLobbyUser(callback.UserName, callback.State, callback.RoomNumber);
+		var userName = callback.UserName;
+		Debug.Log("AddUserLobbyMember");
+		if (LobbyUsers.ContainsKey(userName))
+        {
+			var LobbyUser = LobbyUsers[userName];
+			var lobbyUserInfo = LobbyUser.GetComponent<LobbyUser>();
+			lobbyUserInfo.SetLobbyUser(callback.UserName, callback.State, callback.RoomNumber);
 
-        LobbyUsers[callback.UserName] = LobbyUser;
+			LobbyUsers[callback.UserName] = LobbyUser;
+		}
+		else
+        {
+			var LobbyUser = Instantiate(LobbyUserPrefab, LobbyUsersContent);
+			var lobbyUserInfo = LobbyUser.GetComponent<LobbyUser>();
+			lobbyUserInfo.SetLobbyUser(callback.UserName, callback.State, callback.RoomNumber);
+
+			LobbyUsers[callback.UserName] = LobbyUser;
+		}
+        
     }
 
     private void AddChatRoomLobbyMember(ChatBase.AddChatRoomLobbyMember callback)
@@ -136,11 +141,30 @@ public class Lobby : MonoBehaviour
 		var roomNumber = callback.RoomNumber;
 		var room = Rooms[roomNumber];
         var createdRoom = room.GetComponent<CreatedRoom>();
-
+		Debug.Log($"TEST: number:{roomNumber}/member:{callback.CurrentMember}/roomName:{callback.RoomName}");
 		createdRoom.SetCreatedRoom(roomNumber, callback.CurrentMember, callback.RoomName);
 		room.SetActive(true);
-    }
+		var userName = callback.UserName;
 
+		if (LobbyUsers.ContainsKey(userName))
+		{
+			var LobbyUser = LobbyUsers[userName];
+			var lobbyUserInfo = LobbyUser.GetComponent<LobbyUser>();
+			lobbyUserInfo.SetLobbyUser(callback.UserName, callback.State, callback.RoomNumber);
+
+			LobbyUsers[callback.UserName] = LobbyUser;
+		}
+		else
+		{
+			var LobbyUser = Instantiate(LobbyUserPrefab, LobbyUsersContent);
+			var lobbyUserInfo = LobbyUser.GetComponent<LobbyUser>();
+			lobbyUserInfo.SetLobbyUser(callback.UserName, callback.State, callback.RoomNumber);
+
+			LobbyUsers[callback.UserName] = LobbyUser;
+		}
+	}
+
+	//-- 방 나가기
 	private void RoomLobbyMember(ChatBase.RoomLobbyMember callback)
 	{
 		var user = LobbyUsers[callback.UserName];
@@ -152,11 +176,23 @@ public class Lobby : MonoBehaviour
 		var room = Rooms[roomNumber];
 		var createdRoom = room.GetComponent<CreatedRoom>();
 		createdRoom.Member.text = $"{callback.CurrentMember}";
+		if (callback.CurrentMember <= 0)
+        {
+			room.SetActive(false);
+        }
     }
 
     private void LobbyMember(ChatBase.LobbyMember callback)
     {
+		var state = callback.State;
         var user = LobbyUsers[callback.UserName];
+		if (state == (int)Opcode.Logout)
+        {
+			Debug.Log($"유저 접속종료 !! {callback.UserName}");
+			LobbyUsers.Remove(callback.UserName);
+			Destroy(user);
+			return;
+        }
         var lobbyUserInfo = user.GetComponent<LobbyUser>();
         lobbyUserInfo.SetLobbyUser(callback.UserName, callback.State);
     }

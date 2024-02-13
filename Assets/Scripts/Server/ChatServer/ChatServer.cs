@@ -76,9 +76,35 @@ public class ChatServer : MonoBehaviour
                 if (bytesRead > 0)
                 {
                     string packet = System.Text.Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                    Debug.Log($"Received message: {packet}");
                     var message = JsonConvert.DeserializeObject<ChatBase.Packet>(packet);
                     //-- 서버에서 들어온 메세지 처리
+                    int opcode = message.Opcode;
+                    string opcodeText = "[NotFoundOpcode]";
+                    switch (opcode)
+                    {
+                        case (int)Opcode.Chat:
+                            opcodeText = "[Chat]";
+                            break;
+                        case (int)Opcode.AddUserLobbyMember:
+                            opcodeText = "[AddUserLobbyMember]";
+                            break;
+                        case (int)Opcode.AddChatRoomLobbyMember:
+                            opcodeText = "[AddChatRoomLobbyMember]";
+                            break;
+                        case (int)Opcode.RoomLobbyMember:
+                            opcodeText = "[RoomLobbyMember]";
+                            break;
+                        case (int)Opcode.LobbyMember:
+                            opcodeText = "[LobbyMember]";
+                            break;
+                        case (int)Opcode.JoinRoomMember:
+                            opcodeText = "[JoinRoomMember]";
+                            break;
+                        case (int)Opcode.ExitRoomMember:
+                            opcodeText = "[ExitRoomMember]";
+                            break;
+                    }                            
+                    Debug.Log($"Received message: {opcodeText}\n{message.Message}");
                     await ReadMessage(message);
                 }
             }
@@ -107,13 +133,12 @@ public class ChatServer : MonoBehaviour
                         var packet = JsonConvert.DeserializeObject<ChatBase.AddUserLobbyMember>(message.Message);
                         var gameManager = GameManager.Instance;
 
-                        var userInfo = new GameInfo.LobbyUserInfo();
-                        userInfo.RoomNumber = packet.RoomNumber;
-                        userInfo.State = packet.State;
-                        userInfo.UserName = packet.UserName;
+                        var loginUser = new LoginUser();
+                        loginUser.State = packet.State;
+                        loginUser.RoomNumber = packet.RoomNumber;
+                        loginUser.UserName = packet.UserName;
 
-                        var lobbyUserInfo = gameManager.LobbyUsersInfo;
-                        gameManager.LobbyUsersInfo.Add(userInfo);
+                        gameManager.LoginUsers.Add(loginUser);
                     }
                     break;
                 case (int)Opcode.AddChatRoomLobbyMember:
@@ -122,26 +147,25 @@ public class ChatServer : MonoBehaviour
                         var gameManager = GameManager.Instance;
 
                         //-- 생성된 방목록에 추가
-                        var roomInfo = new GameInfo.CreatedRoomInfo();
-                        roomInfo.CurrentMember = packet.CurrentMember;
-                        roomInfo.RoomName = packet.RoomName;
-                        roomInfo.RoomNumber = packet.RoomNumber;
-                        roomInfo.OwnerName = packet.OwnerName;
-                        //roomInfo.RoomUsersInfo = packet.JoinRoomUsersInfo;
+                        var room = new Room();
+                        room.CurrentMember = packet.CurrentMember;
+                        room.RoomName = packet.RoomName;
+                        room.RoomNumber = packet.RoomNumber;
+                        //room.OwnerName = packet.OwnerName;
 
-                        var createdRoom = gameManager.CreatedRoomsInfo[packet.RoomNumber];
-                        createdRoom = roomInfo;
+                        var createdRoom = gameManager.Rooms[packet.RoomNumber];
+                        createdRoom = room;
 
                         //-- 접속 유저 목록에서 해당 유저 상태 변경
                         var userName = packet.UserName;
 
-                        var lobbyUsersInfo = GameManager.Instance.LobbyUsersInfo;
-                        foreach (var userInfo in lobbyUsersInfo)
+                        var loginUsers = GameManager.Instance.LoginUsers;
+                        foreach (var loginUser in loginUsers)
                         {
-                            if (userInfo.UserName != packet.UserName) continue;
+                            if (loginUser.UserName != packet.UserName) continue;
 
-                            userInfo.State = packet.State;
-                            userInfo.RoomNumber = packet.RoomNumber;
+                            loginUser.State = packet.State;
+                            loginUser.RoomNumber = packet.RoomNumber;
                             break;
                         }
                     }
@@ -151,16 +175,16 @@ public class ChatServer : MonoBehaviour
                         var packet = JsonConvert.DeserializeObject<ChatBase.RoomLobbyMember>(message.Message);
                         var gameManager = GameManager.Instance;
 
-                        var createdRoom = gameManager.CreatedRoomsInfo[packet.RoomNumber];
-                        createdRoom.CurrentMember = packet.CurrentMember;
+                        var room = gameManager.Rooms[packet.RoomNumber];
+                        room.CurrentMember = packet.CurrentMember;
 
-                        var lobbyUsersInfo = GameManager.Instance.LobbyUsersInfo;
-                        foreach (var userInfo in lobbyUsersInfo)
+                        var loginUsers = GameManager.Instance.LoginUsers;
+                        foreach (var loginUser in loginUsers)
                         {
-                            if (userInfo.UserName != packet.UserName) continue;
+                            if (loginUser.UserName != packet.UserName) continue;
 
-                            userInfo.State = packet.State;
-                            userInfo.RoomNumber = packet.RoomNumber;
+                            loginUser.State = packet.State;
+                            loginUser.RoomNumber = packet.RoomNumber;
                             break;
                         }
                     }
@@ -169,12 +193,12 @@ public class ChatServer : MonoBehaviour
                     {
                         var packet = JsonConvert.DeserializeObject<ChatBase.LobbyMember>(message.Message);
 
-                        var lobbyUsersInfo = GameManager.Instance.LobbyUsersInfo;
-                        foreach (var userInfo in lobbyUsersInfo)
+                        var loginUsers = GameManager.Instance.LoginUsers;
+                        foreach (var loginUser in loginUsers)
                         {
-                            if (userInfo.UserName != packet.UserName) continue;
+                            if (loginUser.UserName != packet.UserName) continue;
 
-                            userInfo.State = packet.State;
+                            loginUser.State = packet.State;
                             break;
                         }
                     }
@@ -184,14 +208,17 @@ public class ChatServer : MonoBehaviour
                         var packet = JsonConvert.DeserializeObject<ChatBase.JoinRoomMember>(message.Message);
                         var gameManager = GameManager.Instance;
 
-                        var joinRoom = gameManager.JoinRoom;
-                        joinRoom.CurrentMember = packet.CurrentMember;
+                        var userRoom = gameManager.UserRoom;
+                        userRoom.CurrentMember = packet.CurrentMember;
 
-                        var userInfo = joinRoom.JoinRoomUsersInfo[packet.SlotNumber];
-                        userInfo.UserName = packet.UserName;
-                        userInfo.Gender = packet.Gender;
-                        userInfo.Model = packet.Model;
-                        userInfo.EquipItems = packet.EquipItems;
+                        var characters = gameManager.Characters;
+                        var character = characters[packet.SlotNumber];
+                        character.SlotNumber = packet.SlotNumber;
+                        character.UserName = packet.UserName;
+                        character.Gender = packet.Gender;
+                        character.Model = packet.Model;
+                        character.Items = packet.EquipItems;
+                        
                     }
                     break;
                 case (int)Opcode.ExitRoomMember:
@@ -199,11 +226,16 @@ public class ChatServer : MonoBehaviour
                         var packet = JsonConvert.DeserializeObject<ChatBase.ExitRoomMember>(message.Message);
                         var gameManager = GameManager.Instance;
 
-                        var joinRoom = gameManager.JoinRoom;
-                        joinRoom.CurrentMember = packet.CurrentMember;
+                        var userRoom = gameManager.UserRoom;
+                        userRoom.CurrentMember = packet.CurrentMember;
 
-                        var userInfo = joinRoom.JoinRoomUsersInfo[packet.SlotNumber];
-                        userInfo.UserName = null;
+                        var characters = gameManager.Characters;
+                        var character = characters[packet.SlotNumber];
+                        character.SlotNumber = packet.SlotNumber;
+                        character.UserName = "";
+                        character.Gender = -1;
+                        character.Model = -1;
+                        character.Items.Clear();
                     }
                     break;
             }
@@ -219,9 +251,13 @@ public class ChatServer : MonoBehaviour
         var serverManager = ServerManager.Instance;
         var tcpClient = serverManager.ChatTcpClient;
 
+
         if (tcpClient != null)
         {
             tcpClient.Close();
         }
+
+        //var userName = $"{GameManager.Instance.User.UserName}";
+        //_ = ServerManager.Instance.SendChatMessage((int)Opcode.Logout, userName);
     }
 }

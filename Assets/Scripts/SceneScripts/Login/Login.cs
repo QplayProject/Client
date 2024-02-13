@@ -12,7 +12,6 @@ public class Login : MonoBehaviour
 
     public void LoginEvent()
     {
-        Debug.Log($"LoginEvent:: Request::{username.text}/{password.text}");
         if (username.text != "" && password.text != "")
         {
             StartCoroutine(JoinGame());
@@ -36,7 +35,6 @@ public class Login : MonoBehaviour
 
             joinGame.UserName = gameManager.User.UserName;
             var webServer = new ChatApiServer();
-            Debug.Log("TEST: JOIN GAME!!");
             yield return StartCoroutine(webServer.ChatApiRequest((int)RequestHeader.JoinGame, joinGame));
         }
         else

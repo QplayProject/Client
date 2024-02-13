@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
-using UnityEngine.TextCore.Text;
+using GameInfo;
 
 public class ChatRoom : MonoBehaviour
 {
@@ -16,26 +16,26 @@ public class ChatRoom : MonoBehaviour
         GameManager.Instance.ExitRoomMember = ExitRoomMember;
         for(int i= 0; i< Characters.Length; i++)
         {
-            //ChatBubbles[i] = Characters[i].transform.Find("ChatBubble").gameObject;
-            //ChatBubblesText[i] = ChatBubbles[i].transform.Find("Text").GetComponent<Text>();
             ChatBubbles[i].SetActive(false);
             Characters[i].SetActive(false);
         }
         var gameManager = GameManager.Instance;
-        var joinRoomInfo = gameManager.JoinRoom;
+        var room = gameManager.UserRoom;
+        var characters = gameManager.Characters;
 
-        var member = joinRoomInfo.CurrentMember;
-        var roomName = joinRoomInfo.RoomName;
+        var member = room.CurrentMember;
+        var roomName = room.RoomName;
         var roomNumber = gameManager.User.RoomNumber;
         RoomName.text = $"[No.{roomNumber}] [{member}/6] {roomName}";
 
-        foreach(var joinUser in joinRoomInfo.JoinRoomUsersInfo)
+        for (int i = 0; i < characters.Count; i++)
         {
-            if (joinUser.Value.UserName == "" || joinUser.Value.UserName == null) continue;
+            var character = characters[i];
+            if (character.UserName == "") continue;
 
-            int slotNumber = joinUser.Key;
-            var character = Characters[slotNumber].GetComponent<ChatCharacter>();
-            character.SetChatCharacter(joinUser.Value);
+            int slotNumber = character.SlotNumber;
+            var chatCharacter = Characters[character.SlotNumber].GetComponent<ChatCharacter>();
+            chatCharacter.SetChatCharacter(character);
             Characters[slotNumber].SetActive(true);
         }
     }
@@ -45,41 +45,39 @@ public class ChatRoom : MonoBehaviour
         var character = Characters[callback.SlotNumber];
         var gameManager = GameManager.Instance;
 
-        var roomNumber = gameManager.User.RoomNumber;
-        if (roomNumber == callback.RoomNumber)
-        {
-            var joinUser = new GameInfo.JoinRoomUserInfo();
-            joinUser.UserName = callback.UserName;
-            joinUser.Model = callback.Model;
-            joinUser.Gender = callback.Gender;
-            joinUser.EquipItems = callback.EquipItems;
-            var chatCharacter = character.GetComponent<ChatCharacter>();
-            chatCharacter.SetChatCharacter(joinUser);
+        var room = gameManager.UserRoom;
+        room.CurrentMember = callback.CurrentMember;
+        RoomName.text = $"[No.{room.RoomNumber}] [{room.CurrentMember}/6] {room.RoomName}";
 
-            character.SetActive(true);
-        }
-        else
-            ServerManager.Instance.OpenMessageBox("JoinRoomMember! 잘못된 메시지 들어옴");
+        var joinUser = new Character();
+        joinUser.SlotNumber = callback.SlotNumber;
+        joinUser.UserName = callback.UserName;
+        joinUser.Model = callback.Model;
+        joinUser.Gender = callback.Gender;
+        joinUser.Items = callback.EquipItems;
+        var chatCharacter = character.GetComponent<ChatCharacter>();
+        chatCharacter.SetChatCharacter(joinUser);
+
+
+        character.SetActive(true);
     }
     private void ExitRoomMember(ChatBase.ExitRoomMember callback)
     {
         var gameManager = GameManager.Instance;
-        var joinRoomInfo = gameManager.JoinRoom;
+        var room = gameManager.UserRoom;
+        room.CurrentMember = callback.CurrentMember;
+       
+        
+        var exitUser = gameManager.Characters[callback.SlotNumber];
 
-        var roomName = joinRoomInfo.RoomName;
-        var roomNumber = gameManager.User.RoomNumber;
-        if (roomNumber == callback.RoomNumber)
-        {
-            var exitUser = joinRoomInfo.JoinRoomUsersInfo[callback.SlotNumber];
-            if (exitUser.UserName == callback.UserName)
-            {
-                RoomName.text = $"[No.{roomNumber}] [{callback.CurrentMember}/6] {roomName}";
-                exitUser.UserName = null;
-                Characters[callback.SlotNumber].SetActive(false);
-            }
-        }
-        else
-            ServerManager.Instance.OpenMessageBox("ExitRoomMember! 잘못된 메시지 들어옴");
+        RoomName.text = $"[No.{room.RoomNumber}] [{room.CurrentMember}/6] {room.RoomName}";
+        exitUser.UserName = "";
+        exitUser.Gender = -1;
+        exitUser.Model = -1;
+        exitUser.Items.Clear();
+        
+        Characters[callback.SlotNumber].SetActive(false);
+
 
     }
 

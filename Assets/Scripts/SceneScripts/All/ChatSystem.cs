@@ -48,15 +48,13 @@ public class ChatSystem: MonoBehaviour
 
         if (State == (int)UserState.Room)
         {
-            var joinRoomUsers = GameManager.Instance.JoinRoom.JoinRoomUsersInfo;
-            foreach (var user in joinRoomUsers)
+            var characters = GameManager.Instance.Characters;
+            for (int i = 0; i < characters.Count; i++)
             {
-                string userName = user.Value.UserName;
-                if (userName == packet.UserName)
+                var character = characters[i];
+                if (character.UserName == packet.UserName)
                 {
-                    int slotNumber = user.Key;
-                    UserChat?.Invoke(slotNumber, message);
-                    break;
+                    UserChat?.Invoke(character.SlotNumber, message);
                 }
             }
 

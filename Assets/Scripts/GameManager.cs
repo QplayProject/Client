@@ -25,22 +25,30 @@ public class GameManager : MonoBehaviour
     {
         for (int i= 0; i < count; i++)
         {
-            var createdRoomInfo = new CreatedRoomInfo();
-            //createdRoomInfo.JoinRoomUsersInfo = new List<string>();
-            CreatedRoomsInfo[i] = createdRoomInfo;
-
-            //var lobbyUserInfo = new LobbyUserInfo();
-            //LobbyUsersInfo.Add(lobbyUserInfo);
+            var room = new Room();
+            room.RoomNumber = i;
+            room.CurrentMember = 0;
+            room.RoomName = "";
+            room.OwnerName = "";
+            Rooms[i] = room;
+        }
+        for (int i = 0; i < 6; i++)
+        {
+            var character = new Character();
+            character.SlotNumber = i;
+            character.UserName = "";
+            character.Gender = -1;
+            character.Model = -1;
+            character.Items = new List<int>();
+            Characters.Add(character);
         }
         Screen.SetResolution(Width, Height, false);
     }
-    public UserInfo User = new UserInfo();
-    public JoinRoomInfo JoinRoom = new JoinRoomInfo();
-
-
-    public Dictionary<int, CreatedRoomInfo> CreatedRoomsInfo = new Dictionary<int, CreatedRoomInfo>();
-    public List<LobbyUserInfo> LobbyUsersInfo = new List<LobbyUserInfo>();
-
+    public User User = new User();
+    public Room UserRoom = new Room();
+    public Dictionary<int, Room> Rooms = new Dictionary<int, Room>();
+    public List<LoginUser> LoginUsers = new List<LoginUser>();
+    public List<Character> Characters = new List<Character>();
     public bool VersionCheck = false;
 
     public string GetItemImagePath(int category, string imageId, bool isInventory = false)
@@ -178,7 +186,31 @@ public class GameManager : MonoBehaviour
         {
             var message = ReadMessages.Dequeue();
             int opcode = message.Opcode;
-            
+            /*
+            string opcodeText = "[NotFoundOpcode]";
+            switch (opcode)
+            {
+                case (int)Opcode.AddUserLobbyMember:
+                    opcodeText = "[AddUserLobbyMember]";
+                    break;
+                case (int)Opcode.AddChatRoomLobbyMember:
+                    opcodeText = "[AddChatRoomLobbyMember]";
+                    break;
+                case (int)Opcode.RoomLobbyMember:
+                    opcodeText = "[RoomLobbyMember]";
+                    break;
+                case (int)Opcode.LobbyMember:
+                    opcodeText = "[LobbyMember]";
+                    break;
+                case (int)Opcode.JoinRoomMember:
+                    opcodeText = "[JoinRoomMember]";
+                    break;
+                case (int)Opcode.ExitRoomMember:
+                    opcodeText = "[ExitRoomMember]";
+                    break;
+            }
+            Debug.Log($"Received message: {opcodeText}\n{message.Message}");
+            */
             {
                 switch (opcode)
                 {
@@ -186,46 +218,62 @@ public class GameManager : MonoBehaviour
                         {
                             var packet = JsonConvert.DeserializeObject<ChatBase.Chat>(message.Message);
                             Chat?.Invoke(packet);
+                            Debug.Log("Chat Invoke");
                         }
                         break;
                     case (int)Opcode.AddUserLobbyMember:
                         {
                             var packet = JsonConvert.DeserializeObject<ChatBase.AddUserLobbyMember>(message.Message);
                             AddUserLobbyMember?.Invoke(packet);
+                            Debug.Log("AddUserLobbyMember Invoke");
+
                         }
                         break;
                     case (int)Opcode.AddChatRoomLobbyMember:
                         {
                             var packet = JsonConvert.DeserializeObject<ChatBase.AddChatRoomLobbyMember>(message.Message);
                             AddChatRoomLobbyMember?.Invoke(packet);
+                            Debug.Log("AddChatRoomLobbyMember Invoke");
                         }
                         break;
                     case (int)Opcode.RoomLobbyMember:
                         {
                             var packet = JsonConvert.DeserializeObject<ChatBase.RoomLobbyMember>(message.Message);
                             RoomLobbyMember?.Invoke(packet);
+                            Debug.Log("RoomLobbyMember Invoke");
                         }
                         break;
                     case (int)Opcode.LobbyMember:
                         {
                             var packet = JsonConvert.DeserializeObject<ChatBase.LobbyMember>(message.Message);
                             LobbyMember?.Invoke(packet);
+                            Debug.Log("LobbyMember Invoke");
                         }
                         break;
                     case (int)Opcode.JoinRoomMember:
                         {
                             var packet = JsonConvert.DeserializeObject<ChatBase.JoinRoomMember>(message.Message);
                             JoinRoomMember?.Invoke(packet);
+                            Debug.Log("JoinRoomMember Invoke");
                         }
                         break;
                     case (int)Opcode.ExitRoomMember:
                         {
                             var packet = JsonConvert.DeserializeObject<ChatBase.ExitRoomMember>(message.Message);
                             ExitRoomMember?.Invoke(packet);
+                            Debug.Log("ExitRoomMember Invoke");
                         }
                         break;
                 }
             }
         }
     }
+
+    void OnApplicationQuit()
+    {
+        var userName = GameManager.Instance.User.UserName;
+        _ = ServerManager.Instance.SendChatMessage((int)Opcode.Logout, userName);
+    }
+
+
 }

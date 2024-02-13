@@ -400,10 +400,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1f186deaba6d4ffa9ad3a5ed08d7201, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ChatServerIp: 127.0.0.1
-  ChatServerPort: 12345
-  LoginServerIp: 
-  LoginServerPort: 1234
+  ChatServerIp: localhost
+  ChatServerPort: 8080
+  ChatApiServerUrl: http://localhost:81/api/
 --- !u!4 &517633559
 Transform:
   m_ObjectHideFlags: 0
@@ -1644,6 +1643,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: faed0623aaed94217a5131f62320841e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Width: 1600
+  Height: 900
   VersionCheck: 0
   SelectRoomNumber: -1
 --- !u!1001 &1742172370149816539

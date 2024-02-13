@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Table
 {
@@ -20,11 +19,12 @@ namespace Table
 namespace GameInfo
 {
     #region 플레이어
-    public class UserInfo
+    public class User
     {
         //-- enum : UserState
         public int State { get; set; }
         public int RoomNumber { get; set; }
+        public int SlotNumber { get; set; }
         public string UserName { get; set; }
         public int Gender { get; set; }
         public int Model { get; set; }
@@ -33,7 +33,7 @@ namespace GameInfo
     }
     #endregion
     #region 로비
-    public class LobbyUserInfo
+    public class LoginUser
     {
         //-- enum : UserState
         public int State { get; set; }
@@ -41,31 +41,21 @@ namespace GameInfo
         public string UserName { get; set; }
     }
 
-    public class CreatedRoomInfo
+    public class Room
     {
         public int RoomNumber { get; set; }
         public int CurrentMember { get; set; }
         public string RoomName { get; set; }
         public string OwnerName { get; set; }
-        //public List<string> RoomUsersInfo { get; set; }
     }
     #endregion
-
-   
-    public class JoinRoomInfo
+    public class Character
     {
-        public int CurrentMember { get; set; }
-        public string RoomName { get; set; }
-        public string OwnerName { get; set; }
-        public Dictionary<int, JoinRoomUserInfo> JoinRoomUsersInfo { get; set; }
-    }
-
-    public class JoinRoomUserInfo
-    {
+        public int SlotNumber { get; set; }
         public string UserName { get; set; }
         public int Gender { get; set; }
         public int Model { get; set; }
-        public List<int> EquipItems { get; set; }
+        public List<int> Items { get; set; }
     }
 
 
@@ -90,6 +80,7 @@ namespace Util
         LobbyMember,
         JoinRoomMember,
         ExitRoomMember,
+        Logout
     }
     enum RequestHeader
     {

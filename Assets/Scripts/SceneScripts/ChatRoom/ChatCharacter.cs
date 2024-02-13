@@ -10,7 +10,7 @@ public class ChatCharacter : MonoBehaviour
     public Image[] Images;
     public Text UserName;
 
-    public void SetChatCharacter(JoinRoomUserInfo info)
+    public void SetChatCharacter(Character info)
     {
         if (info.UserName == null)
         {
@@ -33,8 +33,9 @@ public class ChatCharacter : MonoBehaviour
         Model.sprite = Resources.Load<Sprite>(modelPath);
             
 
-        var equipItems = info.EquipItems;
-
+        var equipItems = info.Items;
+        if (equipItems == null) return;
+        if (equipItems.Count <= 0) return;
         for (int i = 0; i < equipItems.Count; i++)
         {
             var itemId = equipItems[i];

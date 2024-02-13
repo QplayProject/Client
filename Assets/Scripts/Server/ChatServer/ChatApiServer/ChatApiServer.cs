@@ -9,8 +9,6 @@ using UnityEngine.SceneManagement;
 
 public class ChatApiServer
 {
-    
-
 
     public IEnumerator ChatApiRequest(int requestHeader, object request)
     {
@@ -41,8 +39,8 @@ public class ChatApiServer
                 break;
         }
         Debug.Log($"ChatApiRequest:: Header:[{headerString}] Data::{json}");
-
-        using (UnityWebRequest server = UnityWebRequest.Post(ServerManager.Instance.ChatApiServerUrl, json))
+        var serverManager = ServerManager.Instance;
+        using (UnityWebRequest server = UnityWebRequest.Post(serverManager.ChatApiServerUrl, json))
         {
             byte[] jsonToSend = new UTF8Encoding().GetBytes(json);
             server.uploadHandler.Dispose();
@@ -54,11 +52,11 @@ public class ChatApiServer
             yield return server.SendWebRequest();
             if (server.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError("HTTP Request failed: " + server.error);
+                
+                Debug.LogError($"Connect URL : {serverManager.ChatApiServerUrl}\nHTTP Request failed: {server.error}");
             }
             else
             {
-                var serverManager = ServerManager.Instance;
                 var data = server.downloadHandler.text;
                 
                 Debug.Log($"ChatApiResponse:: Header:[{headerString}] Data::{data}");
@@ -75,20 +73,20 @@ public class ChatApiServer
                         break;
                     case (int)RequestHeader.CreateRoom:
                         {
-                            var response = JsonConvert.DeserializeObject<ChatApiResponse.Room>(data);
+                            var response = JsonConvert.DeserializeObject<ChatApiResponse.CreateRoom>(data);
                             if (response.MessageCode != (int)MessageCode.Success)
                                 serverManager.OpenMessageBox(response.Message);
                             else
-                                Room(response);
+                                CreateRoom(response);
                         }
                         break;
                     case (int)RequestHeader.JoinRoom:
                         {
-                            var response = JsonConvert.DeserializeObject<ChatApiResponse.Room>(data);
+                            var response = JsonConvert.DeserializeObject<ChatApiResponse.JoinRoom>(data);
                             if (response.MessageCode != (int)MessageCode.Success)
                                 serverManager.OpenMessageBox(response.Message);
                             else
-                                Room(response);
+                                JoinRoom(response);
                         }
                         break;
                     case (int)RequestHeader.ExitRoom:
@@ -141,67 +139,99 @@ public class ChatApiServer
 
     private void JoinGame(ChatApiResponse.JoinGame response)
     {
-        if (response.MessageCode == (int)MessageCode.Success)
-        {
-            var gameManager = GameManager.Instance;
-            var user = gameManager.User;
-            user.State = response.State;
-            user.RoomNumber = response.RoomNumber;
-            user.UserName = response.UserName;
-            user.Gender = response.Gender;
-            user.Model = response.Model;
-            user.Money = response.Money;
-            user.Items = response.Items;
+        var gameManager = GameManager.Instance;
+        var user = gameManager.User;
+        user.State = response.State;
+        user.RoomNumber = response.RoomNumber;
+        user.SlotNumber = response.SlotNumber;
+        user.UserName = response.UserName;
+        user.Gender = response.Gender;
+        user.Model = response.Model;
+        user.Money = response.Money;
+        user.Items = response.Items;
 
-            var roomsInfo = gameManager.CreatedRoomsInfo;
-            for (int i = 0; i< response.CreatedRoomsInfo.Count; i++)
-            {
-                roomsInfo[i] = response.CreatedRoomsInfo[i];
-            }
-            //gameManager.CreatedRoomsInfo = response.CreatedRoomsInfo;
-            foreach(var t in roomsInfo)
-            {
-                if (t.Value.RoomName == null) continue;
-                Debug.Log($"Test:: RoomNaem:{t.Value.RoomName}");
-            }
-            gameManager.LobbyUsersInfo = response.LobbyUsersInfo;
-            ServerManager.Instance.ChatServer?.Invoke();
-            SceneManager.LoadScene("LobbyScene");
+        var roomsInfo = gameManager.Rooms;
+        foreach (var room in response.Rooms)
+        {
+            var roomNumber = room.Key;
+            roomsInfo[roomNumber] = room.Value;
         }
+        gameManager.LoginUsers = response.LoginUsers;
+
+        ServerManager.Instance.ChatServer?.Invoke();
+        SceneManager.LoadScene("LobbyScene");
+
     }
 
     //-- CreateRoom/JoinRoom
-    private void Room(ChatApiResponse.Room response)
-    {
-        if (response.MessageCode == (int)MessageCode.Success)
-        {
-            var gameManager = GameManager.Instance;
-            var user = gameManager.User;
-            var room = gameManager.JoinRoom;
-            user.State = response.State;
-            user.RoomNumber = response.RoomNumber;
-
-            room.CurrentMember = response.CurrentMember;
-            room.RoomName = response.RoomName;
-            room.OwnerName = response.OwnerName;
-            room.JoinRoomUsersInfo = response.JoinRoomUsersInfo;
-            SceneManager.LoadScene("ChatRoomScene");
-        }
-        
-
-    }
-
-    private void ExitRoom(ChatApiResponse.ExitRoom response)
+    private void CreateRoom(ChatApiResponse.CreateRoom response)
     {
         var gameManager = GameManager.Instance;
         var user = gameManager.User;
         user.State = response.State;
-        var roomsInfo = gameManager.CreatedRoomsInfo;
-        for (int i = 0; i < response.CreatedRoomsInfo.Count; i++)
+        user.RoomNumber = response.RoomNumber;
+        user.SlotNumber = response.SlotNumber;
+
+        var room = gameManager.UserRoom;
+        room.CurrentMember = response.CurrentMember;
+        room.RoomNumber = response.RoomNumber;
+        room.RoomName = response.RoomName;
+        room.OwnerName = response.OwnerName;
+
+        var character = gameManager.Characters[response.SlotNumber];
+
+        character.UserName = user.UserName;
+        character.Gender = user.Gender;
+        character.Model = user.Model;
+        var items = user.Items;
+        foreach(var isEquip in items)
         {
-            roomsInfo[i] = response.CreatedRoomsInfo[i];
+            if (!isEquip.Value) continue;
+            var equipItem = isEquip.Key;
+            character.Items.Add(equipItem);
         }
-        gameManager.LobbyUsersInfo = response.LobbyUsersInfo;
+        SceneManager.LoadScene("ChatRoomScene");
+
+    }
+    private void JoinRoom(ChatApiResponse.JoinRoom response)
+    {
+        if (response.MessageCode == (int)MessageCode.Success)
+        {
+            var gameManager = GameManager.Instance;
+            var user = gameManager.User;
+            user.State = response.State;
+            user.RoomNumber = response.RoomNumber;
+            user.SlotNumber = response.SlotNumber;
+
+            var room = gameManager.UserRoom;
+            room.CurrentMember = response.CurrentMember;
+            room.RoomNumber = response.RoomNumber;
+            room.RoomName = response.RoomName;
+            room.OwnerName = response.OwnerName;
+
+            var characters = gameManager.Characters;
+            for (int i = 0; i < response.Characters.Count; i++)
+            {
+                characters[i] = response.Characters[i];    
+            }
+            
+
+            SceneManager.LoadScene("ChatRoomScene");
+        }
+    }
+    private void ExitRoom(ChatApiResponse.ExitRoom response)
+    {
+        var gameManager = GameManager.Instance;
+        var user = gameManager.User;
+
+        user.State = response.State;
+        var roomsInfo = gameManager.Rooms;
+        foreach (var room in response.Rooms)
+        {
+            var roomNumber = room.Key;
+            roomsInfo[roomNumber] = room.Value;
+        }
+        gameManager.LoginUsers = response.LoginUsers;
         SceneManager.LoadScene("LobbyScene");
 
     }

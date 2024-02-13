@@ -10,8 +10,6 @@ public class CreateRoom : MonoBehaviour
 
     public void CreateRoomButton()
     {
-        Debug.Log($"방생성 테스트 : {RoomName.text}");
-        
         var user = GameManager.Instance.User;
         var server = new ChatApiServer();
         var packet = new ChatApiRequest.CreateRoom();
