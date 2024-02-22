@@ -286,6 +286,7 @@ public class GameManager : MonoBehaviour
 
     void OnApplicationQuit()
     {
+        /*
         var userName = GameManager.Instance.User.UserName;
 
         var gamePacket = new Game.Packet();
@@ -297,6 +298,7 @@ public class GameManager : MonoBehaviour
         chatPacket.UserName = userName;
         chatPacket.State = (int)UserState.Logout;
         _= ServerManager.Instance.SendChatMessage(chatPacket);
+        */
     }
 
 

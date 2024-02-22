@@ -67,6 +67,8 @@ namespace Util
     }
     enum Opcode
     {
+        Ping,
+        Chat,
         JoinGame, //-- 게임 접속 (서버<->클라이언트)
         AddUserLobbyMember,
         AddChatRoomLobbyMember,
@@ -74,7 +76,7 @@ namespace Util
         LobbyMember,
         JoinRoomMember,
         ExitRoomMember,
-        Logout
+        Logout,
     }
    
     enum UserState

@@ -82,10 +82,9 @@ public class GameServer : MonoBehaviour
                 if (bytesRead > 0)
                 {
                     string packet = System.Text.Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                    var message = JsonConvert.DeserializeObject<Game.ServerPacket>(packet);
-                    //-- 서버에서 들어온 메세지 처리
-                    int opcode = message.Opcode;
+                    //int opcode = message.Opcode;
                     string opcodeText = "[NotFoundOpcode]";
+                    /*
                     switch (opcode)
                     {
                         case (int)Opcode.AddUserLobbyMember:
@@ -106,8 +105,12 @@ public class GameServer : MonoBehaviour
                         case (int)Opcode.ExitRoomMember:
                             opcodeText = "[ExitRoomMember]";
                             break;
-                    }                            
-                    Debug.Log($"Received message: {opcodeText}\n{message.Message}");
+                    }
+                    */
+                    Debug.Log($"Received message: {opcodeText}\n{packet}");
+                    var message = JsonConvert.DeserializeObject<Game.ServerPacket>(packet);
+                    //-- 서버에서 들어온 메세지 처리
+         
                     await ReadMessage(message);
                 }
             }
@@ -148,13 +151,13 @@ public class GameServer : MonoBehaviour
             // 연결 성공
             Debug.Log("Connected to the Chat Server!");
 
-            //var user = GameManager.Instance.User;
-            //var packet = new Chat.Packet();
-            //packet.UserName = GameManager.Instance.User.UserName;
-            //packet.State = user.State;
-            //packet.RoomNumber = user.RoomNumber;
-            //packet.Message = "Connect To Chat Server!!";
-            //var joinGame = ServerManager.Instance.SendChatMessage(packet);
+            var user = GameManager.Instance.User;
+            var packet = new Chat.Packet();
+            packet.UserName = GameManager.Instance.User.UserName;
+            packet.State = user.State;
+            packet.RoomNumber = user.RoomNumber;
+            packet.Message = "Connect To Chat Server!!";
+            var joinChat = ServerManager.Instance.SendChatMessage(packet, (int)Opcode.Ping);
 
             var test = StartChatServerReceiving(tcpClient, networkStream);
             
@@ -180,18 +183,22 @@ public class GameServer : MonoBehaviour
                 // 실제 데이터를 읽음
                 byte[] buffer = new byte[dataLength];
                 int bytesRead = await networkStream.ReadAsync(buffer, 0, dataLength);
-                Debug.Log("TEST:" + buffer);
                 if (bytesRead > 0)
                 {
                     string packet = System.Text.Encoding.UTF8.GetString(buffer, 0, bytesRead);
                     var message = JsonConvert.DeserializeObject<Chat.Packet>(packet);
                     Debug.Log($"Received Chat Message: {message.Message}");
+                    if(message.Opcode == (int)Opcode.Ping)
+                    {
+                        await ServerManager.Instance.SendChatMessage(message, (int)Opcode.Ping);
+                        continue;
+                    }
                     await ReadChatMessage(message);
                 }
             }
             catch (IOException)
             {
-                Debug.Log("서버와의 연결이 끊겼습니다");
+                Debug.Log("채팅 서버와의 연결이 끊겼습니다");
             }
             catch (Exception e)
             {
@@ -350,6 +357,7 @@ public class GameServer : MonoBehaviour
 
     private void OnDestroy()
     {
+        /*
         var serverManager = ServerManager.Instance;
         var chatTcpClient = serverManager.ChatTcpClient;
         var gameTcpClient = serverManager.TcpClient;
@@ -366,7 +374,7 @@ public class GameServer : MonoBehaviour
         {
             chatTcpClient.Close();
         }
-
+        */
         
     }
 

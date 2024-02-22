@@ -113,9 +113,9 @@ public class ServerManager : MonoBehaviour
         await SendMessageAsync(message);
     }
 
-    public async Task SendChatMessage(Chat.Packet packet)
-    { 
-
+    public async Task SendChatMessage(Chat.Packet packet, int opcode = (int)Opcode.Chat)
+    {
+        packet.Opcode = opcode;
         var message = JsonConvert.SerializeObject(packet);
 
         await SendChatMessageAsync(message);
