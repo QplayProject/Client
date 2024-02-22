@@ -16,41 +16,41 @@ public class SceneChangeButton : MonoBehaviour
             return;
         }
         var user = GameManager.Instance.User;
-        var webServer = new ChatApiServer();
-        var packet = new ChatApiRequest.JoinRoom();
+        var webServer = new ApiServer();
+        var packet = new ApiRequest.JoinRoom();
         packet.UserName = user.UserName;
         packet.RoomNumber = selectRoomNumber;
-        StartCoroutine(webServer.ChatApiRequest((int)RequestHeader.JoinRoom, packet));
+        StartCoroutine(webServer.ApiRequestJoinRoom(packet));
     }
 
     public void ExitRoom()
 	{
         var user = GameManager.Instance.User;
-        var webServer = new ChatApiServer();
-        var packet = new ChatApiRequest.Packet();
+        var webServer = new ApiServer();
+        var packet = new ApiRequest.Packet();
         packet.UserName = user.UserName;
         
-        StartCoroutine(webServer.ChatApiRequest((int)RequestHeader.ExitRoom, packet));
+        StartCoroutine(webServer.ApiRequestExitRoom(packet));
 	}
 
     public void SceneChange(int state)
     {
         var user = GameManager.Instance.User;
-        var webServer = new ChatApiServer();
-        var packet = new ChatApiRequest.SceneChange();
+        var webServer = new ApiServer();
+        var packet = new ApiRequest.SceneChange();
         packet.UserName = user.UserName;
         packet.State = state;
-        StartCoroutine(webServer.ChatApiRequest((int)RequestHeader.SceneChange, packet));
+        StartCoroutine(webServer.ApiRequestSceneChange(packet));
     }
 
     public void EquipItems()
     {
         var user = GameManager.Instance.User;
-        var webServer = new ChatApiServer();
-        var packet = new ChatApiRequest.EquipItems();
+        var webServer = new ApiServer();
+        var packet = new ApiRequest.EquipItems();
         packet.UserName = user.UserName;
         packet.Items = user.Items;
-        StartCoroutine(webServer.ChatApiRequest((int)RequestHeader.EquipItems, packet));
+        StartCoroutine(webServer.ApiRequestEquipItems(packet));
     }
 
 

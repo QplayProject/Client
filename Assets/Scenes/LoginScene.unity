@@ -400,9 +400,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1f186deaba6d4ffa9ad3a5ed08d7201, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GameServerIp: localhost
+  GameServerPort: 8080
   ChatServerIp: localhost
-  ChatServerPort: 8080
-  ChatApiServerUrl: http://localhost:81/api/
+  ChatServerPort: 8060
+  ApiUrl: http://localhost:8070/api
 --- !u!4 &517633559
 Transform:
   m_ObjectHideFlags: 0
@@ -416,7 +418,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &680861362
 GameObject:
@@ -1629,7 +1631,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2121554733
 MonoBehaviour:

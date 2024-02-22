@@ -9,10 +9,6 @@ namespace Table
         public int Category;
         public int Gender;
         public string ImgId;
-    }
-    public class ShopItemInfo
-    {
-        public int Id;
         public int Price;
     }
 }
@@ -71,9 +67,7 @@ namespace Util
     }
     enum Opcode
     {
-        Message, //-- 기본 응답 (서버->클라이언트 Tcp메시지 호출 응답용)
         JoinGame, //-- 게임 접속 (서버<->클라이언트)
-        Chat, //-- 채팅 (서버<->클라이언트)
         AddUserLobbyMember,
         AddChatRoomLobbyMember,
         RoomLobbyMember,
@@ -82,22 +76,6 @@ namespace Util
         ExitRoomMember,
         Logout
     }
-    enum RequestHeader
-    {
-        JoinGame,
-        CreateRoom,
-        JoinRoom,
-        ExitRoom,
-        SceneChange,
-        BuyItem,
-        EquipItems
-    }
-    enum ChatType
-    {
-        Notice,
-        All
-    }
-
    
     enum UserState
     {

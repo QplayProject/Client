@@ -113,7 +113,7 @@ public class Lobby : MonoBehaviour
 		CreateRoomPanel.SetActive(true);
     }
 
-	private void AddUserLobbyMember(ChatBase.AddUserLobbyMember callback)
+	private void AddUserLobbyMember(Game.AddUserLobbyMember callback)
 	{
 		var userName = callback.UserName;
 		Debug.Log("AddUserLobbyMember");
@@ -136,7 +136,7 @@ public class Lobby : MonoBehaviour
         
     }
 
-    private void AddChatRoomLobbyMember(ChatBase.AddChatRoomLobbyMember callback)
+    private void AddChatRoomLobbyMember(Game.AddChatRoomLobbyMember callback)
     {
 		var roomNumber = callback.RoomNumber;
 		var room = Rooms[roomNumber];
@@ -165,7 +165,7 @@ public class Lobby : MonoBehaviour
 	}
 
 	//-- 방 나가기
-	private void RoomLobbyMember(ChatBase.RoomLobbyMember callback)
+	private void RoomLobbyMember(Game.RoomLobbyMember callback)
 	{
 		var user = LobbyUsers[callback.UserName];
 		var lobbyUserInfo = user.GetComponent<LobbyUser>();
@@ -176,13 +176,14 @@ public class Lobby : MonoBehaviour
 		var room = Rooms[roomNumber];
 		var createdRoom = room.GetComponent<CreatedRoom>();
 		createdRoom.Member.text = $"{callback.CurrentMember}";
+		Debug.Log($"Lobby->RoomLobbyMember:{callback.RoomNumber}[{callback.CurrentMember}]");
 		if (callback.CurrentMember <= 0)
         {
 			room.SetActive(false);
         }
     }
 
-    private void LobbyMember(ChatBase.LobbyMember callback)
+    private void LobbyMember(Game.LobbyMember callback)
     {
 		var state = callback.State;
         var user = LobbyUsers[callback.UserName];

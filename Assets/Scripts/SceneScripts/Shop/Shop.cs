@@ -27,10 +27,9 @@ public class Shop: MonoBehaviour
 
     private void CreateShopItems()
     {
-        var shopTable = ServerManager.Instance.ShopTable;
         var itemTable = ServerManager.Instance.ItemTable;
         var gender = GameManager.Instance.User.Gender;
-        foreach(var sellItem in shopTable)
+        foreach(var sellItem in itemTable)
         {
             var item = itemTable[sellItem.Value.Id];
             var price = sellItem.Value.Price;
@@ -72,13 +71,13 @@ public class Shop: MonoBehaviour
     public void BuyItemFunc(int itemId)
     {
         var user = GameManager.Instance.User;
-        var webServer = new ChatApiServer();
-        var buyItem = new ChatApiRequest.BuyItem();
+        var webServer = new ApiServer();
+        var buyItem = new ApiRequest.BuyItem();
 
         buyItem.UserName = user.UserName;
         buyItem.ItemId = itemId;
 
-        StartCoroutine(webServer.ChatApiRequest((int)RequestHeader.BuyItem, buyItem));
+        StartCoroutine(webServer.ApiRequestBuyItem(buyItem));
        
     }
 
@@ -91,7 +90,7 @@ public class Shop: MonoBehaviour
         EquipItems[category].SetActive(true);
     }
 
-    private void BuyItemFunc(ChatApiResponse.BuyItem response)
+    private void BuyItemFunc(ApiResponse.BuyItem response)
     {
         if (response.MessageCode == (int)MessageCode.Success)
         {

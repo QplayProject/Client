@@ -40,7 +40,7 @@ public class ChatRoom : MonoBehaviour
         }
     }
 
-    private void JoinRoomMember(ChatBase.JoinRoomMember callback)
+    private void JoinRoomMember(Game.JoinRoomMember callback)
     {
         var character = Characters[callback.SlotNumber];
         var gameManager = GameManager.Instance;
@@ -61,7 +61,7 @@ public class ChatRoom : MonoBehaviour
 
         character.SetActive(true);
     }
-    private void ExitRoomMember(ChatBase.ExitRoomMember callback)
+    private void ExitRoomMember(Game.ExitRoomMember callback)
     {
         var gameManager = GameManager.Instance;
         var room = gameManager.UserRoom;

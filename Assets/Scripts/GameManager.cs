@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using GameInfo;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -12,6 +11,16 @@ public class GameManager : MonoBehaviour
 
     public int Width;
     public int Height;
+    private int count = 100;
+
+    public User User = new User();
+    public Room UserRoom = new Room();
+    public Dictionary<int, Room> Rooms = new Dictionary<int, Room>();
+    public List<LoginUser> LoginUsers = new List<LoginUser>();
+    public List<Character> Characters = new List<Character>();
+    public bool VersionCheck = false;
+
+
     void Awake()
     {
         if (Instance == null)
@@ -20,10 +29,10 @@ public class GameManager : MonoBehaviour
             DontDestroyOnLoad(this.gameObject);
         }
     }
-    private int count = 100;
+
     private void Start()
     {
-        for (int i= 0; i < count; i++)
+        for (int i = 0; i < count; i++)
         {
             var room = new Room();
             room.RoomNumber = i;
@@ -44,12 +53,7 @@ public class GameManager : MonoBehaviour
         }
         Screen.SetResolution(Width, Height, false);
     }
-    public User User = new User();
-    public Room UserRoom = new Room();
-    public Dictionary<int, Room> Rooms = new Dictionary<int, Room>();
-    public List<LoginUser> LoginUsers = new List<LoginUser>();
-    public List<Character> Characters = new List<Character>();
-    public bool VersionCheck = false;
+
 
     public string GetItemImagePath(int category, string imageId, bool isInventory = false)
     {
@@ -168,25 +172,34 @@ public class GameManager : MonoBehaviour
         return path;
     }
 
-    public Queue<ChatBase.Packet> ReadMessages = new Queue<ChatBase.Packet>();
-    public Action<ChatBase.Chat> Chat;
-    public Action<ChatBase.AddUserLobbyMember> AddUserLobbyMember;
-    public Action<ChatBase.AddChatRoomLobbyMember> AddChatRoomLobbyMember;
-    public Action<ChatBase.RoomLobbyMember> RoomLobbyMember;
-    public Action<ChatBase.LobbyMember> LobbyMember;
-    public Action<ChatBase.JoinRoomMember> JoinRoomMember;
-    public Action<ChatBase.ExitRoomMember> ExitRoomMember;
+    public Queue<Chat.Packet> ChatMessages = new Queue<Chat.Packet>();
+    public Action<Chat.Packet> Chat;
+
+    public Queue<Game.ServerPacket> Messages = new Queue<Game.ServerPacket>();
+    public Action<Game.AddUserLobbyMember> AddUserLobbyMember;
+    public Action<Game.AddChatRoomLobbyMember> AddChatRoomLobbyMember;
+    public Action<Game.RoomLobbyMember> RoomLobbyMember;
+    public Action<Game.LobbyMember> LobbyMember;
+    public Action<Game.JoinRoomMember> JoinRoomMember;
+    public Action<Game.ExitRoomMember> ExitRoomMember;
+
     public int SelectRoomNumber = -1;
     public Action ExitRoom;
 
-    public Action<ChatApiResponse.BuyItem> BuyItem;
+    public Action<ApiResponse.BuyItem> BuyItem;
     private void Update()
     {
-        if (ReadMessages.Count > 0)
+        ReadGameServerMessages();
+        ReadChatServerMessages();
+    }
+
+    private void ReadGameServerMessages()
+    {
+        if (Messages.Count > 0)
         {
-            var message = ReadMessages.Dequeue();
+            var message = Messages.Dequeue();
             int opcode = message.Opcode;
-            /*
+
             string opcodeText = "[NotFoundOpcode]";
             switch (opcode)
             {
@@ -210,69 +223,80 @@ public class GameManager : MonoBehaviour
                     break;
             }
             Debug.Log($"Received message: {opcodeText}\n{message.Message}");
-            */
-            {
-                switch (opcode)
-                {
-                    case (int)Opcode.Chat: //-- 채팅 (서버<->클라이언트)
-                        {
-                            var packet = JsonConvert.DeserializeObject<ChatBase.Chat>(message.Message);
-                            Chat?.Invoke(packet);
-                            Debug.Log("Chat Invoke");
-                        }
-                        break;
-                    case (int)Opcode.AddUserLobbyMember:
-                        {
-                            var packet = JsonConvert.DeserializeObject<ChatBase.AddUserLobbyMember>(message.Message);
-                            AddUserLobbyMember?.Invoke(packet);
-                            Debug.Log("AddUserLobbyMember Invoke");
 
-                        }
-                        break;
-                    case (int)Opcode.AddChatRoomLobbyMember:
-                        {
-                            var packet = JsonConvert.DeserializeObject<ChatBase.AddChatRoomLobbyMember>(message.Message);
-                            AddChatRoomLobbyMember?.Invoke(packet);
-                            Debug.Log("AddChatRoomLobbyMember Invoke");
-                        }
-                        break;
-                    case (int)Opcode.RoomLobbyMember:
-                        {
-                            var packet = JsonConvert.DeserializeObject<ChatBase.RoomLobbyMember>(message.Message);
-                            RoomLobbyMember?.Invoke(packet);
-                            Debug.Log("RoomLobbyMember Invoke");
-                        }
-                        break;
-                    case (int)Opcode.LobbyMember:
-                        {
-                            var packet = JsonConvert.DeserializeObject<ChatBase.LobbyMember>(message.Message);
-                            LobbyMember?.Invoke(packet);
-                            Debug.Log("LobbyMember Invoke");
-                        }
-                        break;
-                    case (int)Opcode.JoinRoomMember:
-                        {
-                            var packet = JsonConvert.DeserializeObject<ChatBase.JoinRoomMember>(message.Message);
-                            JoinRoomMember?.Invoke(packet);
-                            Debug.Log("JoinRoomMember Invoke");
-                        }
-                        break;
-                    case (int)Opcode.ExitRoomMember:
-                        {
-                            var packet = JsonConvert.DeserializeObject<ChatBase.ExitRoomMember>(message.Message);
-                            ExitRoomMember?.Invoke(packet);
-                            Debug.Log("ExitRoomMember Invoke");
-                        }
-                        break;
-                }
+            switch (opcode)
+            {
+                case (int)Opcode.AddUserLobbyMember:
+                    {
+                        var packet = JsonConvert.DeserializeObject<Game.AddUserLobbyMember>(message.Message);
+                        AddUserLobbyMember?.Invoke(packet);
+                        Debug.Log("AddUserLobbyMember Invoke");
+
+                    }
+                    break;
+                case (int)Opcode.AddChatRoomLobbyMember:
+                    {
+                        var packet = JsonConvert.DeserializeObject<Game.AddChatRoomLobbyMember>(message.Message);
+                        AddChatRoomLobbyMember?.Invoke(packet);
+                        Debug.Log("AddChatRoomLobbyMember Invoke");
+                    }
+                    break;
+                case (int)Opcode.RoomLobbyMember:
+                    {
+                        var packet = JsonConvert.DeserializeObject<Game.RoomLobbyMember>(message.Message);
+                        RoomLobbyMember?.Invoke(packet);
+                        Debug.Log("RoomLobbyMember Invoke");
+                    }
+                    break;
+                case (int)Opcode.LobbyMember:
+                    {
+                        var packet = JsonConvert.DeserializeObject<Game.LobbyMember>(message.Message);
+                        LobbyMember?.Invoke(packet);
+                        Debug.Log("LobbyMember Invoke");
+                    }
+                    break;
+                case (int)Opcode.JoinRoomMember:
+                    {
+                        var packet = JsonConvert.DeserializeObject<Game.JoinRoomMember>(message.Message);
+                        JoinRoomMember?.Invoke(packet);
+                        Debug.Log("JoinRoomMember Invoke");
+                    }
+                    break;
+                case (int)Opcode.ExitRoomMember:
+                    {
+                        var packet = JsonConvert.DeserializeObject<Game.ExitRoomMember>(message.Message);
+                        ExitRoomMember?.Invoke(packet);
+                        Debug.Log("ExitRoomMember Invoke");
+                    }
+                    break;
             }
+
+
+        }
+    }
+
+    private void ReadChatServerMessages()
+    {
+        if (ChatMessages.Count > 0)
+        {
+            var packet = ChatMessages.Dequeue();
+            Chat?.Invoke(packet);
         }
     }
 
     void OnApplicationQuit()
     {
         var userName = GameManager.Instance.User.UserName;
-        _ = ServerManager.Instance.SendChatMessage((int)Opcode.Logout, userName);
+
+        var gamePacket = new Game.Packet();
+        gamePacket.Opcode = (int)Opcode.Logout;
+        gamePacket.UserName = userName;
+        _= ServerManager.Instance.SendGameMessage(gamePacket);
+
+        var chatPacket = new Chat.Packet();
+        chatPacket.UserName = userName;
+        chatPacket.State = (int)UserState.Logout;
+        _= ServerManager.Instance.SendChatMessage(chatPacket);
     }
 
 

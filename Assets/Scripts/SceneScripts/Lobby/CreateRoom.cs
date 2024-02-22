@@ -11,11 +11,11 @@ public class CreateRoom : MonoBehaviour
     public void CreateRoomButton()
     {
         var user = GameManager.Instance.User;
-        var server = new ChatApiServer();
-        var packet = new ChatApiRequest.CreateRoom();
+        var server = new ApiServer();
+        var packet = new ApiRequest.CreateRoom();
         packet.UserName = user.UserName;
         packet.RoomName = RoomName.text;
-        StartCoroutine(server.ChatApiRequest((int)RequestHeader.CreateRoom, packet));
+        StartCoroutine(server.ApiRequestCreateRoom(packet));
     }
 
     public void CreateRoomCancelButton()

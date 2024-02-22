@@ -32,17 +32,19 @@ public class ChatSystem: MonoBehaviour
         // 입력된 텍스트를 지웁니다.
         if (!string.IsNullOrEmpty(message))
         {
-            var packet = new ChatBase.Chat();
-            packet.ChatType = (int)ChatType.All;
-            packet.UserName = GameManager.Instance.User.UserName;
+            var user = GameManager.Instance.User;
+            var packet = new Chat.Packet();
+            packet.UserName = user.UserName;
+            packet.State = user.State;
+            packet.RoomNumber = user.RoomNumber;
             packet.Message = message;
-            await ServerManager.Instance.SendChatMessage((int)Opcode.Chat, packet);
+            await ServerManager.Instance.SendChatMessage(packet);
 
             ChatInputField.text = string.Empty;
             ChatInputField.ActivateInputField();
         }
     }
-    void AddChatMessage(ChatBase.Chat packet)
+    void AddChatMessage(Chat.Packet packet)
     {
         var message = $"{packet.UserName} : {packet.Message}";
 

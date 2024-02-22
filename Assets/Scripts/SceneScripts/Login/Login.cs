@@ -29,13 +29,11 @@ public class Login : MonoBehaviour
             LoginServer loginServer = new LoginServer();
             yield return StartCoroutine(loginServer.Login(login));
 
-
             var gameManager = GameManager.Instance;
-            var joinGame = new ChatApiRequest.Packet();
-
+            var joinGame = new ApiRequest.Packet();
             joinGame.UserName = gameManager.User.UserName;
-            var webServer = new ChatApiServer();
-            yield return StartCoroutine(webServer.ChatApiRequest((int)RequestHeader.JoinGame, joinGame));
+            var webServer = new ApiServer();
+            yield return StartCoroutine(webServer.ApiRequestJoinGame(joinGame));
         }
         else
         {

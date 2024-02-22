@@ -8,16 +8,18 @@ using UnityEngine.TextCore.Text;
 using System.Text;
 using UnityEngine.SceneManagement;
 using Util;
+using System;
+using ApiResponse;
 
 public class LoginServer
 {
-    public const string LoginServerURL = "http://13.125.254.231:5000/api/";
-
+    //public const string LoginServerURL = "http://13.125.254.231:5000/api/";
+    public const string LoginServerURL = "http://localhost:8000/api";
     public IEnumerator LoadTable(LoginRequest.LoadTable request)
     {
         var json = JsonConvert.SerializeObject(request);
-        var api = "loadtable";
-        using (UnityWebRequest server = UnityWebRequest.Post(LoginServerURL + $"{api}", json))
+        var url = $"{LoginServerURL}/loadtable";
+        using (UnityWebRequest server = UnityWebRequest.Post(url, json))
         {
             byte[] jsonToSend = new UTF8Encoding().GetBytes(json);
             server.uploadHandler.Dispose();
@@ -48,7 +50,6 @@ public class LoginServer
     {
         GameManager.Instance.VersionCheck = true;
         ServerManager.Instance.ItemTable = response.ItemTable;
-        ServerManager.Instance.ShopTable = response.ShopTable;
     }
 
 
@@ -56,9 +57,9 @@ public class LoginServer
     {
 
         var json = JsonConvert.SerializeObject(request);
-        
-        var api = "login";
-        using (UnityWebRequest server = UnityWebRequest.Post(LoginServerURL + $"{api}", json))
+
+        var url = $"{LoginServerURL}/login";
+        using (UnityWebRequest server = UnityWebRequest.Post(url, json))
         {
             byte[] jsonToSend = new UTF8Encoding().GetBytes(json);
             server.uploadHandler.Dispose();
@@ -76,14 +77,26 @@ public class LoginServer
             else
             {
                 var data = server.downloadHandler.text;
-                var response = JsonConvert.DeserializeObject<LoginResponse.Packet>(data);
+                var response = JsonConvert.DeserializeObject<LoginResponse.Login>(data);
                 if (response.MessageCode == (int)MessageCode.Success)
                 {
-                    GameManager.Instance.User.UserName = request.Id;
+                    var gameManager = GameManager.Instance;
+                    var user = gameManager.User;
+                    user.UserName = response.UserName;
+                    user.State = response.State;
+                    user.RoomNumber = response.RoomNumber;
+                    user.SlotNumber = response.SlotNumber;
+                    user.UserName = response.UserName;
+                    user.Gender = response.Gender;
+                    user.Model = response.Model;
+                    user.Money = response.Money;
+                    user.Items = response.Items;
 
                 }
 
             }
         }
     }
+
+    
 }
