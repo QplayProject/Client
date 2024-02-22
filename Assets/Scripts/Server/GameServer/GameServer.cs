@@ -51,11 +51,14 @@ public class GameServer : MonoBehaviour
             var packet = new Game.Packet();
             packet.Opcode = (int)Opcode.JoinGame;
             packet.UserName = GameManager.Instance.User.UserName;
-            var joinGame = ServerManager.Instance.SendGameMessage(packet);
+            await ServerManager.Instance.SendGameMessage(packet);
+            packet.Opcode = (int)Opcode.Ping;
+            await ServerManager.Instance.SendGameMessage(packet);
 
-            var receive = StartGameServerReceiving(tcpClient, networkStream);
+            //var receive = 
+            await StartGameServerReceiving(tcpClient, networkStream);
 
-            await Task.WhenAll(joinGame, receive);
+            //await Task.WhenAll(receive);
         }
         catch (Exception e)
         {
@@ -82,41 +85,25 @@ public class GameServer : MonoBehaviour
                 if (bytesRead > 0)
                 {
                     string packet = System.Text.Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                    //int opcode = message.Opcode;
-                    string opcodeText = "[NotFoundOpcode]";
-                    /*
-                    switch (opcode)
-                    {
-                        case (int)Opcode.AddUserLobbyMember:
-                            opcodeText = "[AddUserLobbyMember]";
-                            break;
-                        case (int)Opcode.AddChatRoomLobbyMember:
-                            opcodeText = "[AddChatRoomLobbyMember]";
-                            break;
-                        case (int)Opcode.RoomLobbyMember:
-                            opcodeText = "[RoomLobbyMember]";
-                            break;
-                        case (int)Opcode.LobbyMember:
-                            opcodeText = "[LobbyMember]";
-                            break;
-                        case (int)Opcode.JoinRoomMember:
-                            opcodeText = "[JoinRoomMember]";
-                            break;
-                        case (int)Opcode.ExitRoomMember:
-                            opcodeText = "[ExitRoomMember]";
-                            break;
-                    }
-                    */
-                    Debug.Log($"Received message: {opcodeText}\n{packet}");
                     var message = JsonConvert.DeserializeObject<Game.ServerPacket>(packet);
+                    var opcodeString = ServerManager.Instance.GetOpcodeString(message.Opcode);
                     //-- 서버에서 들어온 메세지 처리
-         
+                    if (message.Opcode == (int)Opcode.Ping)
+                    {
+                        var pingPacket = new Game.Packet();
+                        pingPacket.Opcode = (int)Opcode.Ping;
+                        pingPacket.UserName = GameManager.Instance.User.UserName;
+                        await ServerManager.Instance.SendGameMessage(pingPacket);
+                        continue;
+                    }
+                    Debug.Log($"GameServer-> Opcode [{opcodeString}]\n{packet}");
+
                     await ReadMessage(message);
                 }
             }
             catch (IOException)
             {
-                break;
+                Debug.Log("게임 서버와의 연결이 끊겼습니다");
             }
             catch (Exception e)
             {
@@ -125,9 +112,7 @@ public class GameServer : MonoBehaviour
                 break;
             }
         }
-        Debug.Log("서버 연결 종료");
-        tcpClient.Close();
-        //serverManager.ChatNetworkStream = networkStream;
+        Debug.Log("게임 서버 연결 종료");
 
     }
 
@@ -187,12 +172,13 @@ public class GameServer : MonoBehaviour
                 {
                     string packet = System.Text.Encoding.UTF8.GetString(buffer, 0, bytesRead);
                     var message = JsonConvert.DeserializeObject<Chat.Packet>(packet);
-                    Debug.Log($"Received Chat Message: {message.Message}");
-                    if(message.Opcode == (int)Opcode.Ping)
+                    var opcodeString = ServerManager.Instance.GetOpcodeString(message.Opcode);
+                    if (message.Opcode == (int)Opcode.Ping)
                     {
                         await ServerManager.Instance.SendChatMessage(message, (int)Opcode.Ping);
                         continue;
                     }
+                    Debug.Log($"ChatServer-> Opcode [{opcodeString}]\n{packet}"); 
                     await ReadChatMessage(message);
                 }
             }
@@ -207,9 +193,7 @@ public class GameServer : MonoBehaviour
                 break;
             }
         }
-        Debug.Log("서버 연결 종료");
-        tcpClient.Close();
-        //serverManager.ChatNetworkStream = networkStream;
+        Debug.Log("채팅 서버 연결 종료");
 
     }
 
@@ -223,9 +207,10 @@ public class GameServer : MonoBehaviour
 
     private async Task ReadMessage(Game.ServerPacket message)
     {
+        int opcode = message.Opcode;
+
         await Task.Run(() =>
         {
-            int opcode = message.Opcode;
             switch (opcode)
             {
                 case (int)Opcode.AddUserLobbyMember:
@@ -357,24 +342,25 @@ public class GameServer : MonoBehaviour
 
     private void OnDestroy()
     {
-        /*
         var serverManager = ServerManager.Instance;
-        var chatTcpClient = serverManager.ChatTcpClient;
-        var gameTcpClient = serverManager.TcpClient;
+        /*
         var userName = $"{GameManager.Instance.User.UserName}";
         var packet = new Game.Packet();
         packet.UserName = userName;
         packet.Opcode = (int)Opcode.Logout;
         _ = ServerManager.Instance.SendGameMessage(packet);
+        */
+        
+        var gameTcpClient = serverManager.TcpClient;
         if (gameTcpClient != null)
         {
-            gameTcpClient.Close();
+            gameTcpClient.Dispose();
         }
+        var chatTcpClient = serverManager.ChatTcpClient;
         if (chatTcpClient != null)
         {
-            chatTcpClient.Close();
+            chatTcpClient.Dispose();
         }
-        */
         
     }
 

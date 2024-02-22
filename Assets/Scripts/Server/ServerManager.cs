@@ -32,69 +32,81 @@ public class ServerManager : MonoBehaviour
             DontDestroyOnLoad(this.gameObject);
         }
     }
-
-    public async Task SendMessageAsync(string message)
+    public async Task SendGameMessage(Game.Packet packet)
     {
-        if (ChatTcpClient != null && ChatTcpClient.Connected)
+        var message = JsonConvert.SerializeObject(packet);
+        var opcodeString = GetOpcodeString(packet.Opcode);
+        //Debug.Log($"SendGameMessage [{opcodeString}]");
+        await SendGameMessageAsync(message);
+    }
+
+
+    public async Task SendGameMessageAsync(string message)
+    {
+        try
         {
-            try
+            byte[] dataBytes = System.Text.Encoding.UTF8.GetBytes(message);
+            //dataBytes = MessagePackSerializer.Serialize(message);
+            // 데이터의 길이를 구하고 전송
+            int sendDataLength = dataBytes.Length;
+
+            byte[] byteLength = BitConverter.GetBytes(sendDataLength);
+            await Task.Run(() =>
             {
-
-                byte[] dataBytes = System.Text.Encoding.UTF8.GetBytes(message);
-
-                //dataBytes = MessagePackSerializer.Serialize(message);
-
-                // 데이터의 길이를 구하고 전송
-                int sendDataLength = dataBytes.Length;
-
-                byte[] byteLength = BitConverter.GetBytes(sendDataLength);
-                await NetworkStream.WriteAsync(byteLength, 0, byteLength.Length);
+                NetworkStream.Write(byteLength, 0, byteLength.Length);
 
                 // 실제 데이터를 전송
-                await NetworkStream.WriteAsync(dataBytes, 0, dataBytes.Length);
-                //Debug.Log($"Sent message: {message}");
-            }
-            catch (ObjectDisposedException)
-            {
-                Debug.Log($"TcpClient는 이미 종료되었습니다");
+                NetworkStream.Write(dataBytes, 0, dataBytes.Length);
+            });
 
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Error SendMessageAsync : {e.Message}");
-            }
         }
+        catch (ObjectDisposedException)
+        {
+            Debug.Log($"TcpClient는 이미 종료되었습니다");
+
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error SendMessageAsync : {e.Message}");
+        }
+
+    }
+
+    public async Task SendChatMessage(Chat.Packet packet, int opcode = (int)Opcode.Chat)
+    {
+        packet.Opcode = opcode;
+        var message = JsonConvert.SerializeObject(packet);
+
+        await SendChatMessageAsync(message);
     }
     public async Task SendChatMessageAsync(string message)
     {
-        if (ChatTcpClient != null && ChatTcpClient.Connected)
+        try
         {
-            try
+            byte[] dataBytes = System.Text.Encoding.UTF8.GetBytes(message);
+            //dataBytes = MessagePackSerializer.Serialize(message);
+            // 데이터의 길이를 구하고 전송
+            int sendDataLength = dataBytes.Length;
+
+            byte[] byteLength = BitConverter.GetBytes(sendDataLength);
+            await Task.Run(() =>
             {
-
-                byte[] dataBytes = System.Text.Encoding.UTF8.GetBytes(message);
-
-                //dataBytes = MessagePackSerializer.Serialize(message);
-
-                // 데이터의 길이를 구하고 전송
-                int sendDataLength = dataBytes.Length;
-
-                byte[] byteLength = BitConverter.GetBytes(sendDataLength);
-                await ChatNetworkStream.WriteAsync(byteLength, 0, byteLength.Length);
+                ChatNetworkStream.Write(byteLength, 0, byteLength.Length);
 
                 // 실제 데이터를 전송
-                await ChatNetworkStream.WriteAsync(dataBytes, 0, dataBytes.Length);
+                ChatNetworkStream.Write(dataBytes, 0, dataBytes.Length);
                 //Debug.Log($"Sent message: {message}");
-            }
-            catch (ObjectDisposedException)
-            {
-                Debug.Log($"ChatTcpClient는 이미 종료되었습니다");
+            });
 
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Error SendChatMessageAsync : {e.Message}");
-            }
+        }
+        catch (ObjectDisposedException)
+        {
+            Debug.Log($"ChatTcpClient는 이미 종료되었습니다");
+
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error SendChatMessageAsync : {e.Message}");
         }
     }
     public Action ChatServer;
@@ -106,19 +118,33 @@ public class ServerManager : MonoBehaviour
         MessageBox?.Invoke(message);
     }
 
-    public async Task SendGameMessage(Game.Packet packet)
+    public string GetOpcodeString(int opcode)
     {
-        var message = JsonConvert.SerializeObject(packet);
+        switch (opcode)
+        {
+            case (int)Opcode.Ping:
+                return "Ping";
+            case (int)Opcode.Chat:
+                return "Chat";
+            case (int)Opcode.JoinGame:
+                return "JoinGame";
+            case (int)Opcode.AddUserLobbyMember:
+                return "AddUserLobbyMember";
+            case (int)Opcode.AddChatRoomLobbyMember: //-- 본인을 제외한 로비에 위치한 유저들 가져옴
+                return "AddChatRoomLobbyMember";
+            case (int)Opcode.RoomLobbyMember:
+                return "RoomLobbyMember";
+            case (int)Opcode.LobbyMember:
+                return "LobbyMember";
+            case (int)Opcode.JoinRoomMember:
+                return "JoinRoomMember";
+            case (int)Opcode.ExitRoomMember:
+                return "ExitRoomMember";
+            case (int)Opcode.Logout:
+                return "Logout";
+            default:
+                return $"NotFound! [{opcode}]";
+        }
 
-        await SendMessageAsync(message);
     }
-
-    public async Task SendChatMessage(Chat.Packet packet, int opcode = (int)Opcode.Chat)
-    {
-        packet.Opcode = opcode;
-        var message = JsonConvert.SerializeObject(packet);
-
-        await SendChatMessageAsync(message);
-    }
-
 }

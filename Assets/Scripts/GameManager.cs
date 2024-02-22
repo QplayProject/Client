@@ -200,29 +200,8 @@ public class GameManager : MonoBehaviour
             var message = Messages.Dequeue();
             int opcode = message.Opcode;
 
-            string opcodeText = "[NotFoundOpcode]";
-            switch (opcode)
-            {
-                case (int)Opcode.AddUserLobbyMember:
-                    opcodeText = "[AddUserLobbyMember]";
-                    break;
-                case (int)Opcode.AddChatRoomLobbyMember:
-                    opcodeText = "[AddChatRoomLobbyMember]";
-                    break;
-                case (int)Opcode.RoomLobbyMember:
-                    opcodeText = "[RoomLobbyMember]";
-                    break;
-                case (int)Opcode.LobbyMember:
-                    opcodeText = "[LobbyMember]";
-                    break;
-                case (int)Opcode.JoinRoomMember:
-                    opcodeText = "[JoinRoomMember]";
-                    break;
-                case (int)Opcode.ExitRoomMember:
-                    opcodeText = "[ExitRoomMember]";
-                    break;
-            }
-            Debug.Log($"Received message: {opcodeText}\n{message.Message}");
+            string opcodeString = ServerManager.Instance.GetOpcodeString(opcode);
+            Debug.Log($"Received message: {opcodeString}\n{message.Message}");
 
             switch (opcode)
             {
