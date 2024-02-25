@@ -31,4 +31,9 @@ namespace ApiRequest
     {
         public Dictionary<int, bool> Items { get; set; }
     }
+
+    public class ChangeModel : Packet
+    {
+        public int ModelId { get; set; }
+    }
 }

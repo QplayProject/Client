@@ -38,9 +38,9 @@ public class InventoryItem : MonoBehaviour
         Category = category;
         IsEquip = isEquip;
 
-
+        var user = GameManager.Instance.User;
         //-- 인벤토리 아이템 이미지
-        var path = GameManager.Instance.GetItemImagePath(Category, ImageId, true);
+        var path = GameManager.Instance.GetItemImagePath(user.Model, user.Gender, Category, ImageId, true);
         ItemImage.sprite = Resources.Load<Sprite>(path);
 
         //-- 아이템명 설정

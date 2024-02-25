@@ -54,7 +54,7 @@ public class Shop: MonoBehaviour
             GameObject itemObject = Instantiate(InventoryItemPrefab, InventoryContent);
 
             var image = itemObject.transform.Find("Info").Find("Image").GetComponent<Image>();
-            var path = GameManager.Instance.GetItemImagePath(item.Category, item.ImgId, true);
+            var path = GameManager.Instance.GetItemImagePath(user.Model, user.Gender, item.Category, item.ImgId, true);
             image.sprite = Resources.Load<Sprite>(path);
 
             var name = itemObject.transform.Find("Name").GetComponent<Text>();
@@ -85,7 +85,8 @@ public class Shop: MonoBehaviour
     {
         Debug.Log($"ImageId :{itemImageId} / Category :{category}");
         var image = EquipItems[category].GetComponent<Image>();
-        var path = GameManager.Instance.GetItemImagePath(category, itemImageId);
+        var user = GameManager.Instance.User;
+        var path = GameManager.Instance.GetItemImagePath(user.Model, user.Gender, category, itemImageId);
         image.sprite = Resources.Load<Sprite>(path);
         EquipItems[category].SetActive(true);
     }
@@ -104,7 +105,8 @@ public class Shop: MonoBehaviour
             GameObject itemObject = Instantiate(InventoryItemPrefab, InventoryContent);
 
             var image = itemObject.transform.Find("Info").Find("Image").GetComponent<Image>();
-            var path = GameManager.Instance.GetItemImagePath(item.Category, item.ImgId, true);
+            var user = GameManager.Instance.User;
+            var path = GameManager.Instance.GetItemImagePath(user.Model, user.Gender, item.Category, item.ImgId, true);
             image.sprite = Resources.Load<Sprite>(path);
 
             var name = itemObject.transform.Find("Name").GetComponent<Text>();

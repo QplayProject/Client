@@ -32,7 +32,8 @@ public class ShopItem : MonoBehaviour
 
 
         ItemImage = transform.Find("Item").transform.Find("Image").GetComponent<Image>();
-        var path = GameManager.Instance.GetItemImagePath(Category, ItemImageId, true);
+        var user = GameManager.Instance.User;
+        var path = GameManager.Instance.GetItemImagePath(user.Model, user.Gender, Category, ItemImageId, true);
         ItemImage.sprite = Resources.Load<Sprite>(path);
 
         var info = transform.Find("Info").gameObject.transform;

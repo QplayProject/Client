@@ -29,6 +29,7 @@ public class ChatSystem: MonoBehaviour
     }
     async void SendChatMessage(string message)
     {
+        if (message == "") return;
         // 입력된 텍스트를 지웁니다.
         if (!string.IsNullOrEmpty(message))
         {
@@ -38,6 +39,8 @@ public class ChatSystem: MonoBehaviour
             packet.State = user.State;
             packet.RoomNumber = user.RoomNumber;
             packet.Message = message;
+            Debug.Log("Client -> ChatServer");
+
             await ServerManager.Instance.SendChatMessage(packet);
 
             ChatInputField.text = string.Empty;

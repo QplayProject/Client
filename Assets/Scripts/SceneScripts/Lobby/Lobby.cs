@@ -58,7 +58,7 @@ public class Lobby : MonoBehaviour
 			if (!isEquip) continue;
 			var item = itemTable[itemData.Key];
 
-			var path = GameManager.Instance.GetItemImagePath(item.Category, item.ImgId);
+			var path = GameManager.Instance.GetItemImagePath(user.Model, user.Gender, item.Category, item.ImgId);
 			ItemImages[item.Category].sprite = Resources.Load<Sprite>(path);
 			ItemImages[item.Category].gameObject.SetActive(true);
 		}
@@ -121,8 +121,8 @@ public class Lobby : MonoBehaviour
         {
 			var LobbyUser = LobbyUsers[userName];
 			var lobbyUserInfo = LobbyUser.GetComponent<LobbyUser>();
+			if (!lobbyUserInfo.gameObject.activeSelf) lobbyUserInfo.gameObject.SetActive(true);
 			lobbyUserInfo.SetLobbyUser(callback.UserName, callback.State, callback.RoomNumber);
-
 			LobbyUsers[callback.UserName] = LobbyUser;
 		}
 		else

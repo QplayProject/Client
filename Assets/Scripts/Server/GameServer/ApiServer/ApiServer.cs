@@ -255,8 +255,42 @@ public class ApiServer
         }
     }
 
-    
-  
+    public IEnumerator ApiRequestChangeModel(ApiRequest.ChangeModel request)
+    {
+        var json = JsonConvert.SerializeObject(request);
+        var serverManager = ServerManager.Instance;
+        var url = $"{serverManager.ApiUrl}/changemodel";
+        using (UnityWebRequest server = UnityWebRequest.Post(url, json))
+        {
+            byte[] jsonToSend = new UTF8Encoding().GetBytes(json);
+            server.uploadHandler.Dispose();
+            server.uploadHandler = new UploadHandlerRaw(jsonToSend);
+            server.downloadHandler = new DownloadHandlerBuffer();
+            server.SetRequestHeader("Content-Type", "application/json; charset=utf-8");
+
+            yield return server.SendWebRequest();
+            if (server.result != UnityWebRequest.Result.Success)
+            {
+
+                Debug.LogError($"Connect URL : {serverManager.ApiUrl}\nHTTP Request failed: {server.error}");
+            }
+            else
+            {
+                var data = server.downloadHandler.text;
+
+                Debug.Log($"ApiResponse:: Data::{data}");
+                var response = JsonConvert.DeserializeObject<ApiResponse.ChangeModel>(data);
+                if (response.MessageCode != (int)MessageCode.Success)
+                    serverManager.OpenMessageBox(response.Message);
+                else
+                    ChangeModel(response);
+            }
+
+            server.Dispose();
+        }
+    }
+
+
 
 
 
@@ -387,5 +421,13 @@ public class ApiServer
         gameManager.ExitRoom?.Invoke();
     }
 
+    private void ChangeModel(ApiResponse.ChangeModel response)
+    {
+        var gameManager = GameManager.Instance;
+        gameManager.User.Model = response.ModelId;
+        gameManager.User.Money = response.Money;
+        Debug.Log($"TEST:{response.ModelId},money:{response.Money}");
+        gameManager.ChangeModel?.Invoke();
+    }
 }
 

@@ -175,6 +175,9 @@ public class GameServer : MonoBehaviour
                     var opcodeString = ServerManager.Instance.GetOpcodeString(message.Opcode);
                     if (message.Opcode == (int)Opcode.Ping)
                     {
+                        var user = GameManager.Instance.User;
+                        message.State = user.State;
+                        message.RoomNumber = user.RoomNumber;
                         await ServerManager.Instance.SendChatMessage(message, (int)Opcode.Ping);
                         continue;
                     }

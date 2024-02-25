@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using Util;
 
 public class SceneChangeButton : MonoBehaviour
@@ -42,7 +43,26 @@ public class SceneChangeButton : MonoBehaviour
         packet.State = state;
         StartCoroutine(webServer.ApiRequestSceneChange(packet));
     }
+    public void EquipItemAndSceneChange(int state)
+    {
+        StartCoroutine(WaitForEquipItems(state));
+    }
+    private IEnumerator WaitForEquipItems(int state)
+    {
+        var user = GameManager.Instance.User;
+        var webServer = new ApiServer();
+        var equipItempacket = new ApiRequest.EquipItems();
+        equipItempacket.UserName = user.UserName;
+        equipItempacket.Items = user.Items;
+        Debug.Log(equipItempacket.Items);
+        yield return StartCoroutine(webServer.ApiRequestEquipItems(equipItempacket));
 
+
+        var packet = new ApiRequest.SceneChange();
+        packet.UserName = user.UserName;
+        packet.State = state;
+        StartCoroutine(webServer.ApiRequestSceneChange(packet));
+    }
     public void EquipItems()
     {
         var user = GameManager.Instance.User;
@@ -50,6 +70,7 @@ public class SceneChangeButton : MonoBehaviour
         var packet = new ApiRequest.EquipItems();
         packet.UserName = user.UserName;
         packet.Items = user.Items;
+        Debug.Log(packet.Items);
         StartCoroutine(webServer.ApiRequestEquipItems(packet));
     }
 

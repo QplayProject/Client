@@ -54,8 +54,13 @@ public class BeautyRoom: MonoBehaviour
     public void UnEquipItemFunc(int itemId)
     {
         var item = InventoryItems[itemId].transform.Find("IsEquip").gameObject;
+        var equipItem = GameManager.Instance.User.Items;
+        Debug.Log("UnequipItemId:" + itemId);
+        
         item.SetActive(false);
 
     }
+
+   
 }
 

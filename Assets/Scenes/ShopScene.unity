@@ -307,7 +307,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 154, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &154906426
 MonoBehaviour:
@@ -619,7 +619,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 154, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &228956867
 MonoBehaviour:
@@ -992,7 +992,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 154, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &362826813
 MonoBehaviour:
@@ -1068,7 +1068,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 154, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &385353349
 MonoBehaviour:
@@ -1144,7 +1144,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 154, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &474970913
 MonoBehaviour:
@@ -1809,7 +1809,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 154, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &927293794
 MonoBehaviour:
@@ -1885,7 +1885,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 154, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &945995854
 MonoBehaviour:
@@ -2185,7 +2185,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 154, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1047398381
 MonoBehaviour:
@@ -2426,7 +2426,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 90190979}
         m_TargetAssemblyTypeName: SceneChangeButton, Assembly-CSharp
-        m_MethodName: ExitRoom
+        m_MethodName: EquipItems
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2764,7 +2764,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -15}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 154, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1338919637
@@ -3076,7 +3076,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 154, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1530874346
 MonoBehaviour:
@@ -3241,7 +3241,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 86}
+  m_AnchoredPosition: {x: 0, y: 60}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1627423688
@@ -3343,7 +3343,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 154, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1732503063
 MonoBehaviour:
@@ -3418,8 +3418,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -82}
-  m_SizeDelta: {x: 70, y: 65}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 154, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1791425172
 MonoBehaviour:

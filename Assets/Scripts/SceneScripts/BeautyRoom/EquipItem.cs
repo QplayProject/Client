@@ -49,7 +49,7 @@ public class EquipItem : MonoBehaviour
                 Category = category;
 
                 //-- 인벤토리 아이템 이미지
-                var path = GameManager.Instance.GetItemImagePath(Category, ImageId, true);
+                var path = GameManager.Instance.GetItemImagePath(user.Model, user.Gender, Category, ImageId, true);
                 ItemImage.sprite = Resources.Load<Sprite>(path);
                 ItemNameText.text = ItemName;
 
@@ -67,6 +67,7 @@ public class EquipItem : MonoBehaviour
         var user = gameManager.User;
         var itemTable = ServerManager.Instance.ItemTable;
         var items = user.Items;
+        Debug.Log("EquipItem:" + itemId);
         foreach (var item in items)
         {
             var itemCategory = itemTable[item.Key].Category;
@@ -85,7 +86,7 @@ public class EquipItem : MonoBehaviour
         Category = category;
 
         //-- 착용 아이템 이미지
-        var path = gameManager.GetItemImagePath(Category, ImageId, true);
+        var path = gameManager.GetItemImagePath(user.Model, user.Gender, Category, ImageId, true);
         ItemImage.sprite = Resources.Load<Sprite>(path);
         //-- 아이템명 설정
         ItemNameText.text = ItemName;

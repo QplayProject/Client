@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     public List<LoginUser> LoginUsers = new List<LoginUser>();
     public List<Character> Characters = new List<Character>();
     public bool VersionCheck = false;
-
+    public bool IsConnect = false;
 
     void Awake()
     {
@@ -55,9 +55,9 @@ public class GameManager : MonoBehaviour
     }
 
 
-    public string GetItemImagePath(int category, string imageId, bool isInventory = false)
+    public string GetItemImagePath(int model, int gender, int category, string imageId, bool isInventory = false)
     {
-        int gender = User.Gender;
+        //int gender = User.Gender;
         string genderPath = "";
         switch(gender)
         {
@@ -157,7 +157,7 @@ public class GameManager : MonoBehaviour
                     return path;
             }
 
-            path += $"/{User.Model}";
+            path += $"/{model}";
             return path;
         }
        
@@ -187,6 +187,7 @@ public class GameManager : MonoBehaviour
     public Action ExitRoom;
 
     public Action<ApiResponse.BuyItem> BuyItem;
+    public Action ChangeModel;
     private void Update()
     {
         ReadGameServerMessages();

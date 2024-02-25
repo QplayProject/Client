@@ -22,8 +22,9 @@ public class ServerManager : MonoBehaviour
     public string ChatServerIp;
     public int ChatServerPort;
     public string ApiUrl;
-
-
+    public string LoginServerURL;// = "http://13.125.254.231:8000/api";
+    public string ServerIp;
+    
     private void Awake()
     {
         if (Instance == null)
@@ -76,7 +77,6 @@ public class ServerManager : MonoBehaviour
     {
         packet.Opcode = opcode;
         var message = JsonConvert.SerializeObject(packet);
-
         await SendChatMessageAsync(message);
     }
     public async Task SendChatMessageAsync(string message)

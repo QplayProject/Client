@@ -13,12 +13,12 @@ using ApiResponse;
 
 public class LoginServer
 {
-    //public const string LoginServerURL = "http://13.125.254.231:5000/api/";
-    public const string LoginServerURL = "http://localhost:8000/api";
+    //public const string LoginServerURL = "http://localhost:8000/api";
     public IEnumerator LoadTable(LoginRequest.LoadTable request)
     {
         var json = JsonConvert.SerializeObject(request);
-        var url = $"{LoginServerURL}/loadtable";
+        var loginServerUrl = ServerManager.Instance.LoginServerURL;
+        var url = $"{loginServerUrl}/loadtable";
         using (UnityWebRequest server = UnityWebRequest.Post(url, json))
         {
             byte[] jsonToSend = new UTF8Encoding().GetBytes(json);
@@ -57,8 +57,8 @@ public class LoginServer
     {
 
         var json = JsonConvert.SerializeObject(request);
-
-        var url = $"{LoginServerURL}/login";
+        var loginServerURL = ServerManager.Instance.LoginServerURL;
+        var url = $"{loginServerURL}/login";
         using (UnityWebRequest server = UnityWebRequest.Post(url, json))
         {
             byte[] jsonToSend = new UTF8Encoding().GetBytes(json);
@@ -91,7 +91,11 @@ public class LoginServer
                     user.Model = response.Model;
                     user.Money = response.Money;
                     user.Items = response.Items;
-
+                    GameManager.Instance.IsConnect = true;
+                }
+                else
+                {
+                    ServerManager.Instance.OpenMessageBox($"MessageCode[{response.MessageCode}]\n{response.Message}");
                 }
 
             }

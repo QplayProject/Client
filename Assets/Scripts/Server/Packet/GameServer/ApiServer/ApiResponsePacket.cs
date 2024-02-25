@@ -56,4 +56,9 @@ namespace ApiResponse
     {
         public Dictionary<int, bool> Items { get; set; }
     }
+    public class ChangeModel : Packet
+    {
+        public int ModelId { get; set; }
+        public int Money { get; set; }
+    }
 }
